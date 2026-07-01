@@ -52,6 +52,7 @@ class AddContactFragment : Fragment() {
                 binding.etCompany.setText(contact.company)
                 binding.etMobile.setText(contact.mobile)
                 binding.etEmail.setText(contact.email)
+                binding.etLinkedin.setText(contact.linkedinProfile)
             }
         }
 
@@ -71,13 +72,12 @@ class AddContactFragment : Fragment() {
         val company = binding.etCompany.text?.toString()?.trim() ?: ""
         val mobile = binding.etMobile.text?.toString()?.trim() ?: ""
         val email = binding.etEmail.text?.toString()?.trim() ?: ""
+        val linkedin = binding.etLinkedin.text?.toString()?.trim() ?: ""
 
         var valid = true
 
-        if (name.isEmpty()) {
-            binding.nameLayout.error = getString(R.string.name_required)
-            valid = false
-        } else binding.nameLayout.error = null
+        // Name is optional — silently defaults to "Anonymous" in the ViewModel
+        binding.nameLayout.error = null
 
         if (company.isEmpty()) {
             binding.companyLayout.error = getString(R.string.company_required)
@@ -85,18 +85,27 @@ class AddContactFragment : Fragment() {
         } else binding.companyLayout.error = null
 
         val mobileRegex = Regex("^\\+?[0-9]{7,15}$")
-        if (!mobile.matches(mobileRegex)) {
+        val mobileValid = mobile.isEmpty() || mobile.matches(mobileRegex)
+        val emailValid = email.isEmpty() || Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+        if (!mobileValid) {
             binding.mobileLayout.error = getString(R.string.mobile_invalid)
             valid = false
         } else binding.mobileLayout.error = null
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!emailValid) {
             binding.emailLayout.error = getString(R.string.email_invalid)
             valid = false
         } else binding.emailLayout.error = null
 
+        if (mobileValid && emailValid && mobile.isEmpty() && email.isEmpty()) {
+            binding.mobileLayout.error = getString(R.string.mobile_or_email_required)
+            binding.emailLayout.error = getString(R.string.mobile_or_email_required)
+            valid = false
+        }
+
         if (valid) {
-            viewModel.save(name, company, mobile, email)
+            viewModel.save(name, company, mobile, email, linkedin)
         }
     }
 

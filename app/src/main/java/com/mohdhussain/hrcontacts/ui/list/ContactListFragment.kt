@@ -129,7 +129,6 @@ class ContactListFragment : Fragment() {
         viewModel.selectedIds.observe(viewLifecycleOwner) { selected ->
             val count = selected.size
             actionMode?.title = getString(R.string.selected_count, count)
-            adapter.notifyDataSetChanged()
         }
     }
 

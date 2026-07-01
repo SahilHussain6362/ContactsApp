@@ -68,6 +68,13 @@ class ContactDetailFragment : Fragment() {
             binding.tvEmail.text = contact.email
             binding.tvInitial.text = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
 
+            if (contact.linkedinProfile.isNotEmpty()) {
+                binding.linkedinCard.visibility = android.view.View.VISIBLE
+                binding.tvLinkedin.text = contact.linkedinProfile
+            } else {
+                binding.linkedinCard.visibility = android.view.View.GONE
+            }
+
             binding.btnCopyMobile.setOnClickListener {
                 ClipboardUtils.copyToClipboard(requireContext(), "Mobile", contact.mobile)
                 Snackbar.make(binding.root, R.string.mobile_copied, Snackbar.LENGTH_SHORT).show()
@@ -76,6 +83,11 @@ class ContactDetailFragment : Fragment() {
             binding.btnCopyEmail.setOnClickListener {
                 ClipboardUtils.copyToClipboard(requireContext(), "Email", contact.email)
                 Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
+            }
+
+            binding.btnCopyLinkedin.setOnClickListener {
+                ClipboardUtils.copyToClipboard(requireContext(), "LinkedIn", contact.linkedinProfile)
+                Snackbar.make(binding.root, R.string.linkedin_copied, Snackbar.LENGTH_SHORT).show()
             }
         }
     }

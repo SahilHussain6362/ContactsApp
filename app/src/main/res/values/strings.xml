@@ -28,6 +28,9 @@
     <string name="company_required">Company is required</string>
     <string name="mobile_invalid">Enter a valid mobile number</string>
     <string name="email_invalid">Enter a valid email address</string>
+    <string name="mobile_or_email_required">At least one of mobile or email is required</string>
+    <string name="linkedin_profile">LinkedIn Profile</string>
+    <string name="linkedin_copied">LinkedIn profile copied</string>
     <string name="delete">Delete</string>
     <string name="contact_deleted">Contact deleted</string>
     <string name="no_email_app">No email app found</string>

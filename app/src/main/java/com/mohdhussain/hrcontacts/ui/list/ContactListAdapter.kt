@@ -10,7 +10,7 @@ import com.mohdhussain.hrcontacts.databinding.ItemContactBinding
 import com.mohdhussain.hrcontacts.databinding.ItemContactHeaderBinding
 
 sealed class ListItem {
-    data class Header(val company: String, val count: Int) : ListItem()
+    data class Header(val company: String, val count: Int, val isAllSelected: Boolean = false) : ListItem()
     data class ContactRow(
         val id: Long,
         val name: String,
@@ -66,17 +66,8 @@ class ContactListAdapter(
             binding.tvCompanyName.text = "${item.company}  (${item.count})"
             binding.headerCheckbox.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
             binding.headerCheckbox.setOnCheckedChangeListener(null)
-            binding.headerCheckbox.isChecked = false
-
+            binding.headerCheckbox.isChecked = item.isAllSelected
             if (isSelectionMode) {
-                val contactsInCompany = currentList
-                    .filterIsInstance<ListItem.ContactRow>()
-                    .filter { it.company == item.company }
-                val selectedInCompany = contactsInCompany.count { it.isSelected }
-                val allSelected = contactsInCompany.isNotEmpty() &&
-                        selectedInCompany == contactsInCompany.size
-                binding.headerCheckbox.setOnCheckedChangeListener(null)
-                binding.headerCheckbox.isChecked = allSelected
                 binding.headerCheckbox.setOnCheckedChangeListener { _, _ ->
                     onHeaderCheckboxClick(item.company)
                 }

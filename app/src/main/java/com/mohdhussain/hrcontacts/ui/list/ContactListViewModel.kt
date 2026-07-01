@@ -42,7 +42,8 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
 
             val items = mutableListOf<ListItem>()
             filtered.groupBy { it.company }.forEach { (company, groupContacts) ->
-                items.add(ListItem.Header(company, groupContacts.size))
+                val allSelected = groupContacts.isNotEmpty() && groupContacts.all { it.id in selected }
+                items.add(ListItem.Header(company, groupContacts.size, allSelected))
                 groupContacts.forEach { contact ->
                     items.add(
                         ListItem.ContactRow(

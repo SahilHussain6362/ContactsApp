@@ -23,13 +23,14 @@ class AddContactViewModel(private val repository: ContactRepository) : ViewModel
         }
     }
 
-    fun save(name: String, company: String, mobile: String, email: String) {
+    fun save(name: String, company: String, mobile: String, email: String, linkedinProfile: String) {
+        val resolvedName = name.ifEmpty { "Anonymous" }
         viewModelScope.launch {
             val existing = editContact.value
             if (existing != null) {
-                repository.updateContact(existing.copy(name = name, company = company, mobile = mobile, email = email))
+                repository.updateContact(existing.copy(name = resolvedName, company = company, mobile = mobile, email = email, linkedinProfile = linkedinProfile))
             } else {
-                repository.insertContact(HrContact(name = name, company = company, mobile = mobile, email = email))
+                repository.insertContact(HrContact(name = resolvedName, company = company, mobile = mobile, email = email, linkedinProfile = linkedinProfile))
             }
             _saveResult.emit(true)
         }

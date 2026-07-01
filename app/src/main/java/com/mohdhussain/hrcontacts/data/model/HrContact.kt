@@ -9,5 +9,6 @@ data class HrContact(
     val name: String,
     val company: String,
     val mobile: String,
-    val email: String
+    val email: String,
+    val linkedinProfile: String = ""
 )
