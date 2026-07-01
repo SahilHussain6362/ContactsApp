@@ -1,0 +1,26 @@
+# Built outputs
+/build
+app/build
+
+# Gradle internals
+.gradle
+gradle/wrapper/gradle-wrapper.jar
+
+# Local machine config — never commit these
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea
+.DS_Store
+
+# Captures and profiling
+/captures
+.externalNativeBuild
+.cxx
+
+# Claude Code workspace files
+.claude
+
+# Kotlin daemon sessions
+.kotlin

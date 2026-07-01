@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/contactListFragment">
+
+    <fragment
+        android:id="@+id/contactListFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.list.ContactListFragment"
+        android:label="HR Contacts"
+        tools:layout="@layout/fragment_contact_list">
+
+        <action
+            android:id="@+id/action_list_to_detail"
+            app:destination="@id/contactDetailFragment" />
+
+        <action
+            android:id="@+id/action_list_to_add"
+            app:destination="@id/addContactFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/contactDetailFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.detail.ContactDetailFragment"
+        android:label="HR Profile"
+        tools:layout="@layout/fragment_contact_detail">
+
+        <action
+            android:id="@+id/action_detail_to_edit"
+            app:destination="@id/addContactFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addContactFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.add.AddContactFragment"
+        android:label="Add HR Contact"
+        tools:layout="@layout/fragment_add_contact" />
+
+</navigation>

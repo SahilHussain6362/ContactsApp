@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HR Contacts</string>
+    <string name="search_hint">Search by name or company</string>
+    <string name="filter_all">All</string>
+    <string name="filter_by_name">By Name</string>
+    <string name="filter_by_company">By Company</string>
+    <string name="add_contact">Add HR Contact</string>
+    <string name="edit_contact">Edit Contact</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="company">Company</string>
+    <string name="mobile">Mobile</string>
+    <string name="email">Email</string>
+    <string name="copy_mobile">Copy mobile</string>
+    <string name="copy_email">Copy email</string>
+    <string name="mobile_copied">Mobile number copied</string>
+    <string name="email_copied">Email copied</string>
+    <string name="send_email">Send Email</string>
+    <string name="select_all">Select All</string>
+    <string name="delete_selected">Delete Selected</string>
+    <string name="no_contacts">No HR contacts yet.\nTap + to add one.</string>
+    <string name="no_results">No contacts match your search.</string>
+    <string name="selected_count">%d selected</string>
+    <string name="select_company">Select all from %s</string>
+    <string name="name_required">Name is required</string>
+    <string name="company_required">Company is required</string>
+    <string name="mobile_invalid">Enter a valid mobile number</string>
+    <string name="email_invalid">Enter a valid email address</string>
+    <string name="delete">Delete</string>
+    <string name="contact_deleted">Contact deleted</string>
+    <string name="no_email_app">No email app found</string>
+    <string name="contacts_header">%s (%d)</string>
+</resources>

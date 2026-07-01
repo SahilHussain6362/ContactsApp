@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HrContacts" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#90CAF9</item>
+        <item name="colorOnPrimary">#003066</item>
+        <item name="colorPrimaryContainer">#004591</item>
+        <item name="colorOnPrimaryContainer">#D6E4FF</item>
+        <item name="colorSecondary">#BBC3D9</item>
+        <item name="colorOnSecondary">#253141</item>
+        <item name="colorSurface">#111318</item>
+        <item name="colorOnSurface">#E2E2E9</item>
+        <item name="colorSurfaceVariant">#44474F</item>
+        <item name="colorOnSurfaceVariant">#C5C6D0</item>
+        <item name="android:colorBackground">#111318</item>
+        <item name="colorError">#FFB4AB</item>
+        <item name="colorOutline">#8E9099</item>
+    </style>
+</resources>
