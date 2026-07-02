@@ -1,0 +1,22 @@
+# Android Studio / IntelliJ
+.idea
+*.iml
+
+# Build outputs
+/build
+app/build
+
+# Gradle internals
+.gradle
+gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin daemon sessions
+.kotlin
+
+# Local machine config — never commit
+local.properties
+
+# Captures and profiling
+/captures
+.externalNativeBuild
+.cxx
