@@ -311,7 +311,7 @@
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnOpenLinkedin"
+                        android:id="@+id/btnCopyLinkedin"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
@@ -319,13 +319,13 @@
                         android:minWidth="0dp"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        app:icon="@drawable/ic_linkedin"
+                        app:icon="@drawable/ic_copy"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
                         app:cornerRadius="22dp" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCopyLinkedin"
+                        android:id="@+id/btnOpenLinkedin"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
@@ -334,7 +334,7 @@
                         android:minWidth="0dp"
                         android:paddingStart="0dp"
                         android:paddingEnd="0dp"
-                        app:icon="@drawable/ic_copy"
+                        app:icon="@drawable/ic_linkedin"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
                         app:cornerRadius="22dp" />
