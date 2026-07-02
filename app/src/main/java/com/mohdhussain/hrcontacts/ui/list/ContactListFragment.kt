@@ -168,9 +168,9 @@ class ContactListFragment : Fragment() {
         val emails = viewModel.getSelectedEmails()
         if (emails.isEmpty()) return
 
-        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+        val intent = Intent(Intent.ACTION_SEND).apply {
             type = "message/rfc822"
-            putExtra(Intent.EXTRA_EMAIL, emails.toTypedArray())
+            putExtra(Intent.EXTRA_BCC, emails.toTypedArray())
         }
 
         try {

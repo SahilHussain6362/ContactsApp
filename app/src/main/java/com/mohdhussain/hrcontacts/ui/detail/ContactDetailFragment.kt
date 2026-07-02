@@ -1,5 +1,8 @@
 package com.mohdhussain.hrcontacts.ui.detail
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
@@ -80,9 +83,46 @@ class ContactDetailFragment : Fragment() {
                 Snackbar.make(binding.root, R.string.mobile_copied, Snackbar.LENGTH_SHORT).show()
             }
 
+            binding.btnCall.setOnClickListener {
+                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.mobile}")))
+            }
+
+            binding.btnWhatsapp.setOnClickListener {
+                val cleaned = contact.mobile.replace(Regex("[^0-9+]"), "")
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned")).apply {
+                    setPackage("com.whatsapp")
+                }
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Snackbar.make(binding.root, R.string.whatsapp_not_installed, Snackbar.LENGTH_SHORT).show()
+                }
+            }
+
             binding.btnCopyEmail.setOnClickListener {
                 ClipboardUtils.copyToClipboard(requireContext(), "Email", contact.email)
                 Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
+            }
+
+            binding.btnSendEmail.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${contact.email}"))
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
+                }
+            }
+
+            binding.btnOpenLinkedin.setOnClickListener {
+                val uri = Uri.parse(contact.linkedinProfile)
+                val appIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+                    setPackage("com.linkedin.android")
+                }
+                try {
+                    startActivity(appIntent)
+                } catch (e: ActivityNotFoundException) {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                }
             }
 
             binding.btnCopyLinkedin.setOnClickListener {

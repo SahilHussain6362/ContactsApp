@@ -137,13 +137,46 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCopyMobile"
                         style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Copy"
-                        android:textAllCaps="false"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
                         app:icon="@drawable/ic_copy"
-                        app:iconGravity="start"
-                        app:cornerRadius="20dp" />
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCall"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="8dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        app:icon="@drawable/ic_phone"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnWhatsapp"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="8dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        app:icon="@drawable/ic_whatsapp"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
 
                 </LinearLayout>
 
@@ -199,13 +232,31 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCopyEmail"
                         style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Copy"
-                        android:textAllCaps="false"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
                         app:icon="@drawable/ic_copy"
-                        app:iconGravity="start"
-                        app:cornerRadius="20dp" />
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSendEmail"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="8dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        app:icon="@drawable/ic_email"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
 
                 </LinearLayout>
 
@@ -260,15 +311,33 @@
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOpenLinkedin"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        app:icon="@drawable/ic_linkedin"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCopyLinkedin"
                         style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Copy"
-                        android:textAllCaps="false"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="8dp"
+                        android:text=""
+                        android:minWidth="0dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
                         app:icon="@drawable/ic_copy"
-                        app:iconGravity="start"
-                        app:cornerRadius="20dp" />
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:cornerRadius="22dp" />
 
                 </LinearLayout>
 

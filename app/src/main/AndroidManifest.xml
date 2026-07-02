@@ -3,9 +3,11 @@
 
     <queries>
         <intent>
-            <action android:name="android.intent.action.SEND_MULTIPLE" />
+            <action android:name="android.intent.action.SEND" />
             <data android:mimeType="message/rfc822" />
         </intent>
+        <package android:name="com.linkedin.android" />
+        <package android:name="com.whatsapp" />
     </queries>
 
     <application
