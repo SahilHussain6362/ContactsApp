@@ -4,8 +4,8 @@ import contacts.dto.BatchSyncRequest;
 import contacts.dto.BatchSyncResponse;
 import contacts.dto.ContactRequest;
 import contacts.dto.SyncChange;
-import contacts.model.HrContact;
-import contacts.repository.HrContactRepository;
+import contacts.model.Contact;
+import contacts.repository.ContactRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,26 +14,26 @@ import java.time.Instant;
 import java.util.*;
 
 @Service
-public class HrContactService {
+public class ContactService {
 
-    private final HrContactRepository repository;
+    private final ContactRepository repository;
 
-    public HrContactService(HrContactRepository repository) {
+    public ContactService(ContactRepository repository) {
         this.repository = repository;
     }
 
-    public List<HrContact> getAllContacts() {
+    public List<Contact> getAllContacts() {
         return repository.findByDeletedFalseOrderByCompanyAscNameAsc();
     }
 
-    public List<HrContact> getChangesSince(long epochMillis) {
+    public List<Contact> getChangesSince(long epochMillis) {
         return repository.findByUpdatedAtAfter(Instant.ofEpochMilli(epochMillis));
     }
 
-    public HrContact create(ContactRequest req) {
+    public Contact create(ContactRequest req) {
         // If a non-deleted contact already exists with the same email, mobile, or
         // LinkedIn profile, update that record instead of creating a duplicate.
-        HrContact existing = findDuplicate(req);
+        Contact existing = findDuplicate(req);
         if (existing != null) {
             if(Objects.isNull(existing.getMobile())) existing.setMobile(req.getMobile());
 
@@ -47,7 +47,7 @@ public class HrContactService {
         }
 
         Instant now = Instant.now();
-        HrContact contact = new HrContact();
+        Contact contact = new Contact();
         contact.setName(req.getName());
         contact.setCompany(req.getCompany());
         contact.setMobile(req.getMobile());
@@ -61,7 +61,7 @@ public class HrContactService {
 
     // Returns the first existing non-deleted contact that shares any email, mobile,
     // or linkedinProfile with the request. Emails take priority, then mobile, then LinkedIn.
-    private HrContact findDuplicate(ContactRequest req) {
+    private Contact findDuplicate(ContactRequest req) {
 
         String mobile = req.getMobile();
         if (mobile != null && !mobile.isBlank()) {
@@ -78,8 +78,8 @@ public class HrContactService {
         return null;
     }
 
-    public HrContact update(String id, ContactRequest req) {
-        HrContact contact = repository.findById(id)
+    public Contact update(String id, ContactRequest req) {
+        Contact contact = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found: " + id));
         contact.setName(req.getName());
         contact.setCompany(req.getCompany());
@@ -91,7 +91,7 @@ public class HrContactService {
     }
 
     public void softDelete(String id) {
-        HrContact contact = repository.findById(id)
+        Contact contact = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found: " + id));
         contact.setDeleted(true);
         contact.setUpdatedAt(Instant.now());
@@ -99,7 +99,7 @@ public class HrContactService {
     }
 
     public BatchSyncResponse batchSync(BatchSyncRequest req) {
-        List<HrContact> upserted = new ArrayList<>();
+        List<Contact> upserted = new ArrayList<>();
         List<String> deletedIds = new ArrayList<>();
         long serverTimestamp = System.currentTimeMillis();
 
@@ -118,7 +118,7 @@ public class HrContactService {
                 }
                 case "UPDATE" -> {
                     if (change.getServerId() != null && change.getContact() != null) {
-                        HrContact existing = repository.findById(change.getServerId()).orElse(null);
+                        Contact existing = repository.findById(change.getServerId()).orElse(null);
                         if (existing == null) {
                             // Treat as CREATE if the server ID is unknown
                             upserted.add(create(change.getContact()));
@@ -138,7 +138,7 @@ public class HrContactService {
                 }
                 case "DELETE" -> {
                     if (change.getServerId() != null) {
-                        HrContact existing = repository.findById(change.getServerId()).orElse(null);
+                        Contact existing = repository.findById(change.getServerId()).orElse(null);
                         if (existing != null && !existing.isDeleted()) {
                             Instant clientUpdatedAt = change.getClientUpdatedAt() != null
                                     ? Instant.ofEpochMilli(change.getClientUpdatedAt())

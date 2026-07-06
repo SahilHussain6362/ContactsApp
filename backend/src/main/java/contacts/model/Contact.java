@@ -12,8 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "hr_contacts")
-public class HrContact {
+@Document(collection = "contact")
+public class Contact {
 
     @Id
     private String id;

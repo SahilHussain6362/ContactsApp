@@ -1,6 +1,6 @@
 package contacts.dto;
 
-import contacts.model.HrContact;
+import contacts.model.Contact;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,7 +14,7 @@ public class BatchSyncResponse {
     private long serverTimestamp;
 
     // Contacts that were created or updated during this batch
-    private List<HrContact> contacts;
+    private List<Contact> contacts;
 
     // Server IDs of contacts that were soft-deleted during this batch
     private List<String> deletedIds;

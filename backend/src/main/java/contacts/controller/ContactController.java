@@ -3,8 +3,8 @@ package contacts.controller;
 import contacts.dto.BatchSyncRequest;
 import contacts.dto.BatchSyncResponse;
 import contacts.dto.ContactRequest;
-import contacts.model.HrContact;
-import contacts.service.HrContactService;
+import contacts.model.Contact;
+import contacts.service.ContactService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -13,29 +13,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/contacts")
-public class HrContactController {
+public class ContactController {
 
-    private final HrContactService service;
+    private final ContactService service;
 
-    public HrContactController(HrContactService service) {
+    public ContactController(ContactService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<HrContact> getAllContacts() {
+    public List<Contact> getAllContacts() {
         return service.getAllContacts();
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public HrContact create(@RequestBody @Valid ContactRequest req) {
+    public Contact create(@RequestBody @Valid ContactRequest req) {
         return service.create(req);
     }
 
 
     @PutMapping("/{id}")
-    public HrContact update(@PathVariable String id, @RequestBody @Valid ContactRequest req) {
+    public Contact update(@PathVariable String id, @RequestBody @Valid ContactRequest req) {
         return service.update(id, req);
     }
 
@@ -50,7 +50,7 @@ public class HrContactController {
     // Returns all records (including soft-deleted) updated after `since` epoch millis.
     // Android client calls this on every sync to get incremental changes.
     @GetMapping("/changes")
-    public List<HrContact> getChanges(@RequestParam long since) {
+    public List<Contact> getChanges(@RequestParam long since) {
         return service.getChangesSince(since);
     }
 
