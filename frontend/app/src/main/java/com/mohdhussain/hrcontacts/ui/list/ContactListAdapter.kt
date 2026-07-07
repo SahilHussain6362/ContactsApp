@@ -16,7 +16,7 @@ sealed class ListItem {
         val name: String,
         val company: String,
         val mobile: String,
-        val email: String,
+        val emails: List<String>,
         val isSelected: Boolean
     ) : ListItem()
 }
@@ -81,7 +81,11 @@ class ContactListAdapter(
         fun bind(item: ListItem.ContactRow) {
             binding.tvName.text = item.name
             binding.tvCompany.text = item.company
-            binding.tvEmail.text = item.email
+            binding.tvEmail.text = when {
+                item.emails.isEmpty() -> ""
+                item.emails.size == 1 -> item.emails[0]
+                else -> "${item.emails[0]} +${item.emails.size - 1}"
+            }
             binding.tvInitial.text = item.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
 
             binding.checkbox.visibility = if (isSelectionMode) View.VISIBLE else View.GONE

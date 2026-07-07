@@ -2,7 +2,6 @@ package com.mohdhussain.hrcontacts.ui.list
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.mohdhussain.hrcontacts.data.db.HrContactDatabase
 import com.mohdhussain.hrcontacts.data.model.HrContact
 import com.mohdhussain.hrcontacts.data.repository.ContactRepository
 import kotlinx.coroutines.Job
@@ -12,6 +11,10 @@ import kotlinx.coroutines.launch
 enum class SearchScope { ALL, NAME, COMPANY }
 
 class ContactListViewModel(private val repository: ContactRepository) : ViewModel() {
+
+    init {
+        viewModelScope.launch { repository.syncNow() }
+    }
 
     private val allContacts: LiveData<List<HrContact>> = repository.allContacts
 
@@ -51,7 +54,7 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
                             name = contact.name,
                             company = contact.company,
                             mobile = contact.mobile,
-                            email = contact.email,
+                            emails = contact.emails,
                             isSelected = contact.id in selected
                         )
                     )
@@ -118,8 +121,12 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
         return listItems.value
             ?.filterIsInstance<ListItem.ContactRow>()
             ?.filter { it.id in selected }
-            ?.map { it.email } ?: emptyList()
+            ?.flatMap { it.emails }
+            ?.filter { it.isNotBlank() }
+            ?.distinct() ?: emptyList()
     }
+
+    suspend fun syncNow() = repository.syncNow()
 
     fun deleteSelected() {
         val ids = _selectedIds.value?.toList() ?: return
@@ -133,8 +140,7 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
 class ContactListViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db = HrContactDatabase.getDatabase(context)
-        val repo = ContactRepository(db.hrContactDao())
+        val repo = ContactRepository.getInstance(context)
         return ContactListViewModel(repo) as T
     }
 }

@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="0dp"
+            app:menu="@menu/menu_contact_list"
             app:title="HR Contacts"
             app:titleTextAppearance="?attr/textAppearanceTitleLarge" />
 

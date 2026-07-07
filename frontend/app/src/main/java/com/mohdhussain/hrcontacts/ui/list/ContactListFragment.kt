@@ -12,10 +12,13 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mohdhussain.hrcontacts.R
+import com.mohdhussain.hrcontacts.data.repository.AuthRepository
 import com.mohdhussain.hrcontacts.databinding.FragmentContactListBinding
+import kotlinx.coroutines.launch
 
 class ContactListFragment : Fragment() {
 
@@ -47,7 +50,30 @@ class ContactListFragment : Fragment() {
         setupSearchView()
         setupFilterChips()
         setupFab()
+        setupToolbarMenu()
         observeViewModel()
+    }
+
+    private fun setupToolbarMenu() {
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_logout) {
+                confirmLogout()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun confirmLogout() {
+        AlertDialog.Builder(requireContext())
+            .setMessage(R.string.logout_confirm)
+            .setPositiveButton(R.string.logout) { _, _ ->
+                AuthRepository.getInstance(requireContext()).logout()
+                findNavController().navigate(R.id.action_global_to_welcome)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun setupAdapter() {
@@ -188,6 +214,11 @@ class ContactListFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { viewModel.syncNow() }
     }
 
     override fun onDestroyView() {

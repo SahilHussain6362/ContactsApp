@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.mohdhussain.hrcontacts.R
 import com.mohdhussain.hrcontacts.databinding.FragmentContactDetailBinding
+import com.mohdhussain.hrcontacts.databinding.ItemEmailDetailRowBinding
 import com.mohdhussain.hrcontacts.util.ClipboardUtils
 
 class ContactDetailFragment : Fragment() {
@@ -68,8 +69,14 @@ class ContactDetailFragment : Fragment() {
             binding.tvName.text = contact.name
             binding.tvCompany.text = contact.company
             binding.tvMobile.text = contact.mobile
-            binding.tvEmail.text = contact.email
             binding.tvInitial.text = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+
+            if (contact.emails.isNotEmpty()) {
+                binding.emailCard.visibility = android.view.View.VISIBLE
+                bindEmailRows(contact.emails)
+            } else {
+                binding.emailCard.visibility = android.view.View.GONE
+            }
 
             if (contact.linkedinProfile.isNotEmpty()) {
                 binding.linkedinCard.visibility = android.view.View.VISIBLE
@@ -99,20 +106,6 @@ class ContactDetailFragment : Fragment() {
                 }
             }
 
-            binding.btnCopyEmail.setOnClickListener {
-                ClipboardUtils.copyToClipboard(requireContext(), "Email", contact.email)
-                Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
-            }
-
-            binding.btnSendEmail.setOnClickListener {
-                val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${contact.email}"))
-                try {
-                    startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
-                }
-            }
-
             binding.btnOpenLinkedin.setOnClickListener {
                 val uri = Uri.parse(contact.linkedinProfile)
                 val appIntent = Intent(Intent.ACTION_VIEW, uri).apply {
@@ -128,6 +121,26 @@ class ContactDetailFragment : Fragment() {
             binding.btnCopyLinkedin.setOnClickListener {
                 ClipboardUtils.copyToClipboard(requireContext(), "LinkedIn", contact.linkedinProfile)
                 Snackbar.make(binding.root, R.string.linkedin_copied, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun bindEmailRows(emails: List<String>) {
+        binding.emailsContainer.removeAllViews()
+        emails.forEach { email ->
+            val rowBinding = ItemEmailDetailRowBinding.inflate(layoutInflater, binding.emailsContainer, true)
+            rowBinding.tvEmailRow.text = email
+            rowBinding.btnCopyEmailRow.setOnClickListener {
+                ClipboardUtils.copyToClipboard(requireContext(), "Email", email)
+                Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
+            }
+            rowBinding.btnSendEmailRow.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -16,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"https://contactsapp-1.onrender.com/\"")
+        // TODO: replace with the real Google OAuth Web Client ID once available (Google Cloud Console).
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "374882603947-73k1uk1t3va8ldc5pn4ltstklss5mrhb.apps.googleusercontent.com")
     }
 
     buildTypes {
@@ -39,6 +43,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -64,4 +69,18 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
 }

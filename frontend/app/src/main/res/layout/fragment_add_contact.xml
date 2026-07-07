@@ -87,24 +87,30 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/emailLayout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            <LinearLayout
+                android:id="@+id/emailsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/tvEmailsError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorError"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddEmail"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:hint="@string/email"
-                app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="?attr/colorPrimary">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:imeOptions="actionNext" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:text="@string/add_another_email"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_add" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/linkedinLayout"

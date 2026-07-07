@@ -3,7 +3,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/contactListFragment">
+    app:startDestination="@id/splashFragment">
+
+    <action
+        android:id="@+id/action_global_to_contact_list"
+        app:destination="@id/contactListFragment"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="true" />
+
+    <action
+        android:id="@+id/action_global_to_welcome"
+        app:destination="@id/welcomeFragment"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="true" />
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.auth.SplashFragment"
+        android:label="HR Contacts"
+        tools:layout="@layout/fragment_splash" />
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.auth.WelcomeFragment"
+        android:label="HR Contacts"
+        tools:layout="@layout/fragment_welcome">
+
+        <action
+            android:id="@+id/action_welcome_to_login"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.auth.LoginFragment"
+        android:label="Log In"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+
+        <action
+            android:id="@+id/action_login_to_forgot_password"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.auth.RegisterFragment"
+        android:label="Create Account"
+        tools:layout="@layout/fragment_register" />
+
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.auth.ForgotPasswordFragment"
+        android:label="Reset Password"
+        tools:layout="@layout/fragment_forgot_password" />
 
     <fragment
         android:id="@+id/contactListFragment"

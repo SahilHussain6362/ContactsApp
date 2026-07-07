@@ -2,7 +2,6 @@ package com.mohdhussain.hrcontacts.ui.add
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.mohdhussain.hrcontacts.data.db.HrContactDatabase
 import com.mohdhussain.hrcontacts.data.model.HrContact
 import com.mohdhussain.hrcontacts.data.repository.ContactRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,14 +22,14 @@ class AddContactViewModel(private val repository: ContactRepository) : ViewModel
         }
     }
 
-    fun save(name: String, company: String, mobile: String, email: String, linkedinProfile: String) {
+    fun save(name: String, company: String, mobile: String, emails: List<String>, linkedinProfile: String) {
         val resolvedName = name.ifEmpty { "Anonymous" }
         viewModelScope.launch {
             val existing = editContact.value
             if (existing != null) {
-                repository.updateContact(existing.copy(name = resolvedName, company = company, mobile = mobile, email = email, linkedinProfile = linkedinProfile))
+                repository.updateLocalContact(existing, resolvedName, company, mobile, emails, linkedinProfile)
             } else {
-                repository.insertContact(HrContact(name = resolvedName, company = company, mobile = mobile, email = email, linkedinProfile = linkedinProfile))
+                repository.createLocalContact(resolvedName, company, mobile, emails, linkedinProfile)
             }
             _saveResult.emit(true)
         }
@@ -40,8 +39,7 @@ class AddContactViewModel(private val repository: ContactRepository) : ViewModel
 class AddContactViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db = HrContactDatabase.getDatabase(context)
-        val repo = ContactRepository(db.hrContactDao())
+        val repo = ContactRepository.getInstance(context)
         return AddContactViewModel(repo) as T
     }
 }

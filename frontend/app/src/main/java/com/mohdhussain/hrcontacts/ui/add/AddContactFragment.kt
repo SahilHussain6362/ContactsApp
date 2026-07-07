@@ -10,6 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.mohdhussain.hrcontacts.R
 import com.mohdhussain.hrcontacts.databinding.FragmentAddContactBinding
+import com.mohdhussain.hrcontacts.databinding.ItemEmailInputBinding
 import kotlinx.coroutines.launch
 
 class AddContactFragment : Fragment() {
@@ -44,6 +45,8 @@ class AddContactFragment : Fragment() {
         binding.toolbar.title = if (isEditing) getString(R.string.edit_contact) else getString(R.string.add_contact)
         binding.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
+        binding.btnAddEmail.setOnClickListener { addEmailRow() }
+
         if (isEditing) {
             viewModel.loadContact(contactId)
             viewModel.editContact.observe(viewLifecycleOwner) { contact ->
@@ -51,9 +54,16 @@ class AddContactFragment : Fragment() {
                 binding.etName.setText(contact.name)
                 binding.etCompany.setText(contact.company)
                 binding.etMobile.setText(contact.mobile)
-                binding.etEmail.setText(contact.email)
                 binding.etLinkedin.setText(contact.linkedinProfile)
+                binding.emailsContainer.removeAllViews()
+                if (contact.emails.isEmpty()) {
+                    addEmailRow()
+                } else {
+                    contact.emails.forEach { addEmailRow(it) }
+                }
             }
+        } else {
+            addEmailRow()
         }
 
         binding.btnSave.setOnClickListener { onSaveClicked() }
@@ -67,12 +77,27 @@ class AddContactFragment : Fragment() {
         }
     }
 
+    private fun addEmailRow(initialValue: String = "") {
+        val rowBinding = ItemEmailInputBinding.inflate(layoutInflater, binding.emailsContainer, true)
+        rowBinding.etEmailRow.setText(initialValue)
+        rowBinding.btnRemoveEmail.setOnClickListener {
+            binding.emailsContainer.removeView(rowBinding.root)
+        }
+    }
+
+    private fun collectEmailRows(): List<ItemEmailInputBinding> =
+        (0 until binding.emailsContainer.childCount).map { index ->
+            ItemEmailInputBinding.bind(binding.emailsContainer.getChildAt(index))
+        }
+
     private fun onSaveClicked() {
         val name = binding.etName.text?.toString()?.trim() ?: ""
         val company = binding.etCompany.text?.toString()?.trim() ?: ""
         val mobile = binding.etMobile.text?.toString()?.trim() ?: ""
-        val email = binding.etEmail.text?.toString()?.trim() ?: ""
         val linkedin = binding.etLinkedin.text?.toString()?.trim() ?: ""
+
+        val emailRows = collectEmailRows()
+        val enteredEmails = emailRows.map { it.etEmailRow.text?.toString()?.trim() ?: "" }
 
         var valid = true
 
@@ -86,26 +111,38 @@ class AddContactFragment : Fragment() {
 
         val mobileRegex = Regex("^\\+?[0-9]{7,15}$")
         val mobileValid = mobile.isEmpty() || mobile.matches(mobileRegex)
-        val emailValid = email.isEmpty() || Patterns.EMAIL_ADDRESS.matcher(email).matches()
 
         if (!mobileValid) {
             binding.mobileLayout.error = getString(R.string.mobile_invalid)
             valid = false
         } else binding.mobileLayout.error = null
 
-        if (!emailValid) {
-            binding.emailLayout.error = getString(R.string.email_invalid)
-            valid = false
-        } else binding.emailLayout.error = null
+        var allEmailsValid = true
+        emailRows.forEachIndexed { index, rowBinding ->
+            val email = enteredEmails[index]
+            val emailValid = email.isEmpty() || Patterns.EMAIL_ADDRESS.matcher(email).matches()
+            if (!emailValid) {
+                rowBinding.emailInputLayout.error = getString(R.string.email_invalid)
+                allEmailsValid = false
+                valid = false
+            } else {
+                rowBinding.emailInputLayout.error = null
+            }
+        }
 
-        if (mobileValid && emailValid && mobile.isEmpty() && email.isEmpty()) {
+        val validEmails = enteredEmails.filter { it.isNotEmpty() }
+
+        if (mobileValid && allEmailsValid && mobile.isEmpty() && validEmails.isEmpty()) {
             binding.mobileLayout.error = getString(R.string.mobile_or_email_required)
-            binding.emailLayout.error = getString(R.string.mobile_or_email_required)
+            binding.tvEmailsError.text = getString(R.string.mobile_or_email_required)
+            binding.tvEmailsError.visibility = View.VISIBLE
             valid = false
+        } else {
+            binding.tvEmailsError.visibility = View.GONE
         }
 
         if (valid) {
-            viewModel.save(name, company, mobile, email, linkedin)
+            viewModel.save(name, company, mobile, validEmails, linkedin)
         }
     }
 

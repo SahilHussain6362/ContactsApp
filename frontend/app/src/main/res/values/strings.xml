@@ -29,6 +29,7 @@
     <string name="mobile_invalid">Enter a valid mobile number</string>
     <string name="email_invalid">Enter a valid email address</string>
     <string name="mobile_or_email_required">At least one of mobile or email is required</string>
+    <string name="add_another_email">Add another email</string>
     <string name="linkedin_profile">LinkedIn Profile</string>
     <string name="linkedin_copied">LinkedIn profile copied</string>
     <string name="whatsapp_not_installed">WhatsApp is not installed</string>
@@ -36,4 +37,32 @@
     <string name="contact_deleted">Contact deleted</string>
     <string name="no_email_app">No email app found</string>
     <string name="contacts_header">%s (%d)</string>
+
+    <!-- Auth -->
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_email">Continue with Email</string>
+    <string name="or_divider">OR</string>
+    <string name="google_sign_in_failed">Google sign-in failed. Please try again.</string>
+    <string name="log_in">Log In</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="dont_have_account">Don\'t have an account? Register</string>
+    <string name="already_have_account">Already have an account? Log In</string>
+    <string name="create_account">Create Account</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="otp">OTP</string>
+    <string name="otp_sent_to">We’ve sent a code to %s</string>
+    <string name="change_email">Change email</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="new_password">New Password</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirm">Are you sure you want to logout?</string>
+    <string name="email_required">Email is required</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_too_short">Password must be at least 8 characters</string>
+    <string name="passwords_dont_match">Passwords do not match</string>
+    <string name="otp_required">Enter the OTP</string>
 </resources>

@@ -2,7 +2,6 @@ package com.mohdhussain.hrcontacts.ui.detail
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.mohdhussain.hrcontacts.data.db.HrContactDatabase
 import com.mohdhussain.hrcontacts.data.model.HrContact
 import com.mohdhussain.hrcontacts.data.repository.ContactRepository
 import kotlinx.coroutines.launch
@@ -30,8 +29,7 @@ class ContactDetailViewModel(private val repository: ContactRepository) : ViewMo
 class ContactDetailViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val db = HrContactDatabase.getDatabase(context)
-        val repo = ContactRepository(db.hrContactDao())
+        val repo = ContactRepository.getInstance(context)
         return ContactDetailViewModel(repo) as T
     }
 }
