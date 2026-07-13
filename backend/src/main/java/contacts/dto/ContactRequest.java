@@ -18,6 +18,7 @@ public class ContactRequest {
     private String mobile;
     private List<String> emails;
     private String linkedinProfile;
+    private boolean verified;
 
     @AssertTrue(message = "At least one of mobile or email must be provided")
     public boolean isContactInfoPresent() {

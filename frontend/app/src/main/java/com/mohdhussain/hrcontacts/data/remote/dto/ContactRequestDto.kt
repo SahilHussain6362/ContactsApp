@@ -8,5 +8,6 @@ data class ContactRequestDto(
     val company: String,
     val mobile: String?,
     val emails: List<String>?,
-    val linkedinProfile: String?
+    val linkedinProfile: String?,
+    val verified: Boolean
 )

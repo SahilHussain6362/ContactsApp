@@ -24,6 +24,8 @@ public class Contact {
     private List<String> emails;
     private String linkedinProfile;
 
+    private boolean verified = false;
+
     private Instant createdAt;
     private Instant updatedAt;
 

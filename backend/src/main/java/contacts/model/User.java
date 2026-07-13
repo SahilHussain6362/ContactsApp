@@ -23,9 +23,6 @@ public class User {
     @Indexed(unique = true)
     private String email;
 
-    // Null until the user sets a password (e.g. a Google-only account).
-    private String passwordHash;
-
     private AuthProvider provider;
 
     private Instant createdAt;

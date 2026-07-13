@@ -1,6 +1,7 @@
 package com.mohdhussain.hrcontacts.ui.auth
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,12 +44,10 @@ class WelcomeFragment : Fragment() {
         viewModel = ViewModelProvider(this, WelcomeViewModelFactory(requireContext()))[WelcomeViewModel::class.java]
 
         binding.btnGoogle.setOnClickListener { launchGoogleSignIn() }
-        binding.btnEmail.setOnClickListener { findNavController().navigate(R.id.action_welcome_to_login) }
 
         viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
             binding.btnGoogle.isEnabled = !loading
-            binding.btnEmail.isEnabled = !loading
         }
 
         lifecycleScope.launch {
@@ -85,11 +84,14 @@ class WelcomeFragment : Fragment() {
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     viewModel.loginWithGoogle(googleIdTokenCredential.idToken)
                 } else {
+                    Log.e(TAG, "Unexpected credential type: ${credential.type}")
                     Toast.makeText(requireContext(), R.string.google_sign_in_failed, Toast.LENGTH_LONG).show()
                 }
             } catch (e: GetCredentialException) {
+                Log.e(TAG, "Google sign-in failed", e)
                 Toast.makeText(requireContext(), R.string.google_sign_in_failed, Toast.LENGTH_LONG).show()
             } catch (e: GoogleIdTokenParsingException) {
+                Log.e(TAG, "Google sign-in failed", e)
                 Toast.makeText(requireContext(), R.string.google_sign_in_failed, Toast.LENGTH_LONG).show()
             }
         }
@@ -98,5 +100,9 @@ class WelcomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val TAG = "WelcomeFragment"
     }
 }

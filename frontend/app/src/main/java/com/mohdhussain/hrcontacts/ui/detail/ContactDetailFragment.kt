@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -70,6 +71,20 @@ class ContactDetailFragment : Fragment() {
             binding.tvCompany.text = contact.company
             binding.tvMobile.text = contact.mobile
             binding.tvInitial.text = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+
+            if (contact.verified) {
+                binding.tvVerifiedBadge.text = getString(R.string.verified)
+                binding.tvVerifiedBadge.setBackgroundResource(R.drawable.bg_badge_verified)
+                binding.tvVerifiedBadge.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.verified_badge_text)
+                )
+            } else {
+                binding.tvVerifiedBadge.text = getString(R.string.not_verified)
+                binding.tvVerifiedBadge.setBackgroundResource(R.drawable.bg_badge_unverified)
+                binding.tvVerifiedBadge.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.unverified_badge_text)
+                )
+            }
 
             if (contact.emails.isNotEmpty()) {
                 binding.emailCard.visibility = android.view.View.VISIBLE

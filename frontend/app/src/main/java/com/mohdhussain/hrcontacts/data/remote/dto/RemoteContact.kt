@@ -10,6 +10,7 @@ data class RemoteContact(
     val mobile: String?,
     val emails: List<String>?,
     val linkedinProfile: String?,
+    val verified: Boolean,
     val createdAt: String?,
     val updatedAt: String?,
     val deleted: Boolean

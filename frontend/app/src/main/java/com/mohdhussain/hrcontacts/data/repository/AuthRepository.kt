@@ -5,12 +5,7 @@ import com.mohdhussain.hrcontacts.data.auth.TokenManager
 import com.mohdhussain.hrcontacts.data.remote.ApiService
 import com.mohdhussain.hrcontacts.data.remote.RetrofitClient
 import com.mohdhussain.hrcontacts.data.remote.dto.ErrorResponseDto
-import com.mohdhussain.hrcontacts.data.remote.dto.ForgotPasswordSendOtpRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.GoogleAuthRequestDto
-import com.mohdhussain.hrcontacts.data.remote.dto.LoginRequestDto
-import com.mohdhussain.hrcontacts.data.remote.dto.RegisterSendOtpRequestDto
-import com.mohdhussain.hrcontacts.data.remote.dto.RegisterVerifyRequestDto
-import com.mohdhussain.hrcontacts.data.remote.dto.ResetPasswordRequestDto
 import com.squareup.moshi.Moshi
 import retrofit2.HttpException
 
@@ -27,32 +22,6 @@ class AuthRepository(
 
     suspend fun loginWithGoogle(idToken: String): Result<Unit> = runCatching {
         val response = api.googleLogin(GoogleAuthRequestDto(idToken))
-        tokenManager.saveSession(response.jwt, response.user)
-    }.mapAuthFailure()
-
-    suspend fun registerSendOtp(email: String): Result<Unit> = runCatching {
-        api.registerSendOtp(RegisterSendOtpRequestDto(email))
-        Unit
-    }.mapAuthFailure()
-
-    suspend fun registerVerify(email: String, otp: String, password: String, name: String?): Result<Unit> =
-        runCatching {
-            val response = api.registerVerify(RegisterVerifyRequestDto(email, otp, password, name))
-            tokenManager.saveSession(response.jwt, response.user)
-        }.mapAuthFailure()
-
-    suspend fun login(email: String, password: String): Result<Unit> = runCatching {
-        val response = api.login(LoginRequestDto(email, password))
-        tokenManager.saveSession(response.jwt, response.user)
-    }.mapAuthFailure()
-
-    suspend fun forgotPasswordSendOtp(email: String): Result<Unit> = runCatching {
-        api.forgotPasswordSendOtp(ForgotPasswordSendOtpRequestDto(email))
-        Unit
-    }.mapAuthFailure()
-
-    suspend fun resetPassword(email: String, otp: String, newPassword: String): Result<Unit> = runCatching {
-        val response = api.resetPassword(ResetPasswordRequestDto(email, otp, newPassword))
         tokenManager.saveSession(response.jwt, response.user)
     }.mapAuthFailure()
 

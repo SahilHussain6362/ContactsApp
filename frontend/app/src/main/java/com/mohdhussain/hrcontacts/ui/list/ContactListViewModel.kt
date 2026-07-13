@@ -45,8 +45,15 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
 
             val items = mutableListOf<ListItem>()
             filtered.groupBy { it.company }.forEach { (company, groupContacts) ->
-                val allSelected = groupContacts.isNotEmpty() && groupContacts.all { it.id in selected }
-                items.add(ListItem.Header(company, groupContacts.size, allSelected))
+                // Parent state is recalculated from its children every time selection
+                // changes: none selected -> NONE, some -> PARTIAL (indeterminate), all -> ALL.
+                val selectedCount = groupContacts.count { it.id in selected }
+                val selectionState = when {
+                    selectedCount == 0 -> SelectionState.NONE
+                    selectedCount == groupContacts.size -> SelectionState.ALL
+                    else -> SelectionState.PARTIAL
+                }
+                items.add(ListItem.Header(company, groupContacts.size, selectionState))
                 groupContacts.forEach { contact ->
                     items.add(
                         ListItem.ContactRow(
@@ -55,6 +62,7 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
                             company = contact.company,
                             mobile = contact.mobile,
                             emails = contact.emails,
+                            verified = contact.verified,
                             isSelected = contact.id in selected
                         )
                     )
@@ -92,6 +100,9 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
         _selectedIds.value = if (contactId in current) current - contactId else current + contactId
     }
 
+    // Parent (company header) checkbox click: downward propagation.
+    // If every child is already selected (header was CHECKED), clear them all;
+    // otherwise (header was NONE or PARTIAL/indeterminate), select them all.
     fun selectAllFromCompany(company: String) {
         val ids = listItems.value
             ?.filterIsInstance<ListItem.ContactRow>()
@@ -99,7 +110,7 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
             ?.map { it.id }
             ?.toSet() ?: return
         val current = _selectedIds.value ?: emptySet()
-        val allSelected = ids.all { it in current }
+        val allSelected = ids.isNotEmpty() && ids.all { it in current }
         _selectedIds.value = if (allSelected) current - ids else current + ids
     }
 

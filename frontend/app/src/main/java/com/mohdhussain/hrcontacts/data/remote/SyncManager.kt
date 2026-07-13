@@ -123,7 +123,8 @@ class SyncManager(
         company = company,
         mobile = mobile.ifBlank { null },
         emails = emails.ifEmpty { null },
-        linkedinProfile = linkedinProfile.ifBlank { null }
+        linkedinProfile = linkedinProfile.ifBlank { null },
+        verified = verified
     )
 
     private fun RemoteContact.toLocalContact(localId: Long = 0): HrContact = HrContact(
@@ -133,6 +134,7 @@ class SyncManager(
         mobile = mobile ?: "",
         emails = emails ?: emptyList(),
         linkedinProfile = linkedinProfile ?: "",
+        verified = verified,
         serverId = id,
         updatedAt = parsedUpdatedAt(),
         pendingAction = PendingAction.NONE

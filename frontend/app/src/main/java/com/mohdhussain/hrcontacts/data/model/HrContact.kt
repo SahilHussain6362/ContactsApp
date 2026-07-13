@@ -18,6 +18,7 @@ data class HrContact(
     val mobile: String,
     val emails: List<String> = emptyList(),
     val linkedinProfile: String = "",
+    val verified: Boolean = false,
     val serverId: String? = null,
     val updatedAt: Long = 0L,
     val pendingAction: String = PendingAction.CREATE

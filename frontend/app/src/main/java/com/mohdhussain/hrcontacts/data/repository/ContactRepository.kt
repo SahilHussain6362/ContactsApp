@@ -33,7 +33,8 @@ class ContactRepository(
         company: String,
         mobile: String,
         emails: List<String>,
-        linkedinProfile: String
+        linkedinProfile: String,
+        verified: Boolean
     ): Long {
         val id = dao.insertContact(
             HrContact(
@@ -42,6 +43,7 @@ class ContactRepository(
                 mobile = mobile,
                 emails = emails,
                 linkedinProfile = linkedinProfile,
+                verified = verified,
                 updatedAt = System.currentTimeMillis(),
                 pendingAction = PendingAction.CREATE
             )
@@ -56,7 +58,8 @@ class ContactRepository(
         company: String,
         mobile: String,
         emails: List<String>,
-        linkedinProfile: String
+        linkedinProfile: String,
+        verified: Boolean
     ) {
         val nextPendingAction =
             if (existing.pendingAction == PendingAction.CREATE) PendingAction.CREATE else PendingAction.UPDATE
@@ -67,6 +70,7 @@ class ContactRepository(
                 mobile = mobile,
                 emails = emails,
                 linkedinProfile = linkedinProfile,
+                verified = verified,
                 updatedAt = System.currentTimeMillis(),
                 pendingAction = nextPendingAction
             )

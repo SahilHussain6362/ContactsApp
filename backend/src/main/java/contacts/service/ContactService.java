@@ -53,6 +53,7 @@ public class ContactService {
         contact.setMobile(req.getMobile());
         contact.setEmails(req.getEmails());
         contact.setLinkedinProfile(req.getLinkedinProfile());
+        contact.setVerified(req.isVerified());
         contact.setCreatedAt(now);
         contact.setUpdatedAt(now);
         contact.setDeleted(false);
@@ -86,6 +87,7 @@ public class ContactService {
         contact.setMobile(req.getMobile());
         contact.setEmails(req.getEmails());
         contact.setLinkedinProfile(req.getLinkedinProfile());
+        contact.setVerified(req.isVerified());
         contact.setUpdatedAt(Instant.now());
         return repository.save(contact);
     }

@@ -18,8 +18,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "BASE_URL", "\"https://contactsapp-1.onrender.com/\"")
-        // TODO: replace with the real Google OAuth Web Client ID once available (Google Cloud Console).
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "374882603947-73k1uk1t3va8ldc5pn4ltstklss5mrhb.apps.googleusercontent.com")
+        // Must be the Web client ID from Google Cloud Console (same value the backend
+        // verifies as the token audience via google.client-id), NOT the Android client ID.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"374882603947-74ahnn69df19ododtvc0v1t3dp9uc595.apps.googleusercontent.com\"")
     }
 
     buildTypes {

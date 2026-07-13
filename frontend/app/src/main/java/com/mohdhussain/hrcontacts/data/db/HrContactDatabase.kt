@@ -9,7 +9,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mohdhussain.hrcontacts.data.model.HrContact
 
-@Database(entities = [HrContact::class], version = 4, exportSchema = false)
+@Database(entities = [HrContact::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class HrContactDatabase : RoomDatabase() {
 
@@ -75,13 +75,20 @@ abstract class HrContactDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE hr_contacts ADD COLUMN verified INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): HrContactDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
                     HrContactDatabase::class.java,
                     "hr_contacts.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .build().also { INSTANCE = it }
             }
     }
 }

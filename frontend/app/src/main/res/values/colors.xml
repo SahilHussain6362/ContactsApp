@@ -15,4 +15,9 @@
     <color name="md_theme_background">#F8F9FF</color>
     <color name="md_theme_error">#BA1A1A</color>
     <color name="md_theme_outline">#74777F</color>
+
+    <color name="verified_badge_background">#DCEDC8</color>
+    <color name="verified_badge_text">#1B5E20</color>
+    <color name="unverified_badge_background">#ECEFF1</color>
+    <color name="unverified_badge_text">#546E7A</color>
 </resources>
