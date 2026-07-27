@@ -31,6 +31,21 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    public UserDto getProfile(User user) {
+        return UserDto.from(user);
+    }
+
+    /**
+     * Renames the caller. Google's own name is only used to seed the record at first login,
+     * so a rename here survives every later login — {@link #googleLogin} looks the user up by
+     * email and never writes the name back over an existing document.
+     */
+    public UserDto updateProfile(User user, String name) {
+        user.setName(name.trim());
+        user.setUpdatedAt(Instant.now());
+        return UserDto.from(userRepository.save(user));
+    }
+
     private User createUser(String email, String name) {
         Instant now = Instant.now();
         User user = new User();

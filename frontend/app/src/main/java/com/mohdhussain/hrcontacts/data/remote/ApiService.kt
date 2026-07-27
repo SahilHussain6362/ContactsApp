@@ -6,10 +6,13 @@ import com.mohdhussain.hrcontacts.data.remote.dto.BatchSyncResponseDto
 import com.mohdhussain.hrcontacts.data.remote.dto.ContactRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.GoogleAuthRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.RemoteContact
+import com.mohdhussain.hrcontacts.data.remote.dto.UpdateProfileRequestDto
+import com.mohdhussain.hrcontacts.data.remote.dto.UserDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -19,6 +22,20 @@ interface ApiService {
 
     @POST("api/v1/auth/google")
     suspend fun googleLogin(@Body request: GoogleAuthRequestDto): AuthResponseDto
+
+    @GET("api/v1/auth/me")
+    suspend fun getProfile(): UserDto
+
+    @PATCH("api/v1/auth/me")
+    suspend fun updateProfile(@Body request: UpdateProfileRequestDto): UserDto
+
+    // Both bookmark routes return the caller's whole profile, so the client replaces its cached
+    // user rather than trying to patch a set it may have raced against.
+    @PUT("api/contacts/{id}/bookmark")
+    suspend fun addBookmark(@Path("id") id: String): UserDto
+
+    @DELETE("api/contacts/{id}/bookmark")
+    suspend fun removeBookmark(@Path("id") id: String): UserDto
 
     @GET("api/contacts")
     suspend fun getContacts(): List<RemoteContact>

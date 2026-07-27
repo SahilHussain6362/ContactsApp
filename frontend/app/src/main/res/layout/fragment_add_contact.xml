@@ -131,10 +131,11 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- No verified toggle here by design: that flag is server-owned and read-only in the
+                 app. It still shows as a badge on the list and detail screens. -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
@@ -142,16 +143,24 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/verified"
+                    android:text="@string/private_contact"
                     android:textAppearance="?attr/textAppearanceTitleSmall"
                     android:textColor="?attr/colorOnSurface" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchVerified"
+                    android:id="@+id/switchPrivate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="@string/private_contact_hint"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"

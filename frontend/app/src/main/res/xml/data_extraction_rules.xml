@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup rules for API 31+ (android:dataExtractionRules). See backup_rules.xml for why
+  auth_prefs.xml is excluded: its AndroidKeyStore master key is not exportable, so the
+  file is unreadable anywhere but the device that wrote it.
+
+  device-transfer matters as much as cloud-backup here — phone-to-phone clone tools copy
+  app data but cannot copy hardware-backed keys.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude
+            domain="sharedpref"
+            path="auth_prefs.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude
+            domain="sharedpref"
+            path="auth_prefs.xml" />
+    </device-transfer>
+</data-extraction-rules>

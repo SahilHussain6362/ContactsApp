@@ -39,10 +39,48 @@
     <string name="contacts_header">%s (%d)</string>
     <string name="verified">Verified</string>
     <string name="not_verified">Not Verified</string>
+    <string name="private_contact">Private</string>
+    <string name="private_contact_hint">Only you can see a private contact.</string>
+
+    <!-- Filter sheet -->
+    <string name="filter">Filter</string>
+    <string name="filter_with_count">Filter (%d)</string>
+    <string name="filter_contacts">Filter contacts</string>
+    <string name="filter_any_company">Any company</string>
+    <string name="filter_has_phone">Has phone number</string>
+    <string name="filter_has_email">Has email</string>
+    <string name="filter_verified_only">Verified only</string>
+    <string name="filter_apply">Apply</string>
+    <string name="filter_clear_all">Clear all</string>
 
     <!-- Auth -->
     <string name="continue_with_google">Continue with Google</string>
     <string name="google_sign_in_failed">Google sign-in failed. Please try again.</string>
     <string name="logout">Logout</string>
     <string name="logout_confirm">Are you sure you want to logout?</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_records">Records</string>
+    <string name="nav_you">You</string>
+
+    <!-- Profile -->
+    <string name="profile_title">You</string>
+    <string name="profile_edit">Edit profile</string>
+    <string name="profile_edit_name_title">Edit name</string>
+    <string name="profile_display_name">Display name</string>
+    <string name="profile_name_required">Name can\'t be empty</string>
+    <string name="profile_name_updated">Profile updated</string>
+    <string name="profile_update_failed">Couldn\'t update your profile. Please try again.</string>
+    <string name="profile_signed_in_with">Signed in with %s</string>
+    <string name="profile_tab_bookmarks">Bookmarked</string>
+    <string name="profile_tab_added">Added by me</string>
+    <string name="profile_no_bookmarks">No bookmarked contacts yet.\nTap the bookmark icon on any contact to save it here.</string>
+    <string name="profile_no_added">You haven\'t added any contacts yet.</string>
+    <string name="profile_counts">%1$d bookmarked · %2$d added</string>
+
+    <!-- Bookmarks -->
+    <string name="bookmark_add">Bookmark contact</string>
+    <string name="bookmark_remove">Remove bookmark</string>
+    <string name="bookmark_added">Bookmarked</string>
+    <string name="bookmark_removed">Bookmark removed</string>
 </resources>

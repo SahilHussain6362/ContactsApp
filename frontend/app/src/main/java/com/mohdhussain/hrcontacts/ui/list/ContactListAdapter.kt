@@ -27,6 +27,7 @@ sealed class ListItem {
         val mobile: String,
         val emails: List<String>,
         val verified: Boolean,
+        val bookmarked: Boolean,
         val isSelected: Boolean
     ) : ListItem()
 }
@@ -34,7 +35,8 @@ sealed class ListItem {
 class ContactListAdapter(
     private val onContactClick: (Long) -> Unit,
     private val onContactLongClick: (Long) -> Unit,
-    private val onHeaderCheckboxClick: (String) -> Unit
+    private val onHeaderCheckboxClick: (String) -> Unit,
+    private val onBookmarkClick: (Long) -> Unit
 ) : ListAdapter<ListItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     var isSelectionMode = false
@@ -115,6 +117,23 @@ class ContactListAdapter(
                     ContextCompat.getColor(binding.root.context, R.color.unverified_badge_text)
                 )
             }
+
+            // Bookmarking is hidden during multi-select: the row's click already means "toggle
+            // selection" there, so a second competing tap target would just misfire.
+            binding.btnBookmark.visibility = if (isSelectionMode) View.GONE else View.VISIBLE
+            binding.btnBookmark.setImageResource(
+                if (item.bookmarked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
+            )
+            binding.btnBookmark.contentDescription = binding.root.context.getString(
+                if (item.bookmarked) R.string.bookmark_remove else R.string.bookmark_add
+            )
+            binding.btnBookmark.setColorFilter(
+                ContextCompat.getColor(
+                    binding.root.context,
+                    if (item.bookmarked) R.color.bookmark_active else R.color.bookmark_inactive
+                )
+            )
+            binding.btnBookmark.setOnClickListener { onBookmarkClick(item.id) }
 
             binding.checkbox.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
             binding.checkbox.setOnCheckedChangeListener(null)

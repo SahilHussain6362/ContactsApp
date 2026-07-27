@@ -1,5 +1,6 @@
 package contacts.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -18,7 +19,14 @@ public class ContactRequest {
     private String mobile;
     private List<String> emails;
     private String linkedinProfile;
-    private boolean verified;
+
+    // No `verified` field on purpose: that flag is server-owned (see Contact.verified), so a
+    // client sending it would be ignored — leaving it out makes the boundary explicit instead.
+
+    // Only the contact's creator can change this; see ContactService. @JsonProperty is required
+    // because Jackson derives the name "private" from the isPrivate() accessor Lombok generates.
+    @JsonProperty("isPrivate")
+    private boolean isPrivate;
 
     @AssertTrue(message = "At least one of mobile or email must be provided")
     public boolean isContactInfoPresent() {

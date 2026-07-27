@@ -45,6 +45,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.profile.ProfileFragment"
+        android:label="@string/nav_you"
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_profile_to_detail"
+            app:destination="@id/contactDetailFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/contactDetailFragment"
         android:name="com.mohdhussain.hrcontacts.ui.detail.ContactDetailFragment"
         android:label="HR Profile"

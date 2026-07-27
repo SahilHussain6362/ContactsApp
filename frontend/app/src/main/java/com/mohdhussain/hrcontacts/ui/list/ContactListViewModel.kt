@@ -10,6 +10,28 @@ import kotlinx.coroutines.launch
 
 enum class SearchScope { ALL, NAME, COMPANY }
 
+/**
+ * Criteria picked in the filter bottom sheet. Each field narrows the list only when set —
+ * a blank [company] or a `false` toggle means "don't narrow on this" — so the default
+ * instance matches everything. The three toggles are presence checks, not value matches.
+ */
+data class ContactFilter(
+    val company: String = "",
+    val hasPhone: Boolean = false,
+    val hasEmail: Boolean = false,
+    val verifiedOnly: Boolean = false
+) {
+    val activeCount: Int
+        get() = listOf(
+            company.isNotBlank(),
+            hasPhone,
+            hasEmail,
+            verifiedOnly
+        ).count { it }
+
+    val isActive: Boolean get() = activeCount > 0
+}
+
 class ContactListViewModel(private val repository: ContactRepository) : ViewModel() {
 
     init {
@@ -20,27 +42,39 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
 
     private val _searchQuery = MutableLiveData("")
     private val _searchScope = MutableLiveData(SearchScope.ALL)
+    private val _filter = MutableLiveData(ContactFilter())
     private val _selectedIds = MutableLiveData<Set<Long>>(emptySet())
     private val _isSelectionMode = MutableLiveData(false)
 
     val selectedIds: LiveData<Set<Long>> = _selectedIds
     val isSelectionMode: LiveData<Boolean> = _isSelectionMode
+    val filter: LiveData<ContactFilter> = _filter
+
+    /** Distinct company names across all contacts, for the filter sheet dropdown. */
+    val companies: LiveData<List<String>> = allContacts.map { contacts ->
+        contacts.map { it.company.trim() }
+            .filter { it.isNotEmpty() }
+            .distinctBy { it.lowercase() }
+            .sortedBy { it.lowercase() }
+    }
 
     val listItems: LiveData<List<ListItem>> = MediatorLiveData<List<ListItem>>().also { mediator ->
         val recompute = { _: Any? ->
             val query = _searchQuery.value.orEmpty().trim().lowercase()
             val scope = _searchScope.value ?: SearchScope.ALL
+            val filter = _filter.value ?: ContactFilter()
             val selected = _selectedIds.value ?: emptySet()
             val contacts = allContacts.value ?: emptyList()
 
             val filtered = contacts.filter { contact ->
-                if (query.isEmpty()) true
+                val matchesQuery = if (query.isEmpty()) true
                 else when (scope) {
                     SearchScope.NAME -> contact.name.lowercase().contains(query)
                     SearchScope.COMPANY -> contact.company.lowercase().contains(query)
                     SearchScope.ALL -> contact.name.lowercase().contains(query) ||
                             contact.company.lowercase().contains(query)
                 }
+                matchesQuery && matchesFilter(contact, filter)
             }
 
             val items = mutableListOf<ListItem>()
@@ -63,6 +97,7 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
                             mobile = contact.mobile,
                             emails = contact.emails,
                             verified = contact.verified,
+                            bookmarked = contact.bookmarked,
                             isSelected = contact.id in selected
                         )
                     )
@@ -73,7 +108,27 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
         mediator.addSource(allContacts, recompute)
         mediator.addSource(_searchQuery, recompute)
         mediator.addSource(_searchScope, recompute)
+        mediator.addSource(_filter, recompute)
         mediator.addSource(_selectedIds, recompute)
+    }
+
+    // Company is an exact match (it comes from a dropdown of existing companies); the rest
+    // keep only contacts that have the field at all. A contact can be saved with a mobile
+    // or an email but not necessarily both, which is what makes these two worth filtering on.
+    private fun matchesFilter(contact: HrContact, filter: ContactFilter): Boolean {
+        if (filter.company.isNotBlank() && !contact.company.trim().equals(filter.company.trim(), ignoreCase = true)) {
+            return false
+        }
+        if (filter.hasPhone && contact.mobile.isBlank()) {
+            return false
+        }
+        if (filter.hasEmail && contact.emails.none { it.isNotBlank() }) {
+            return false
+        }
+        if (filter.verifiedOnly && !contact.verified) {
+            return false
+        }
+        return true
     }
 
     private var searchJob: Job? = null
@@ -89,6 +144,18 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
     fun setSearchScope(scope: SearchScope) {
         _searchScope.value = scope
     }
+
+    fun applyFilter(filter: ContactFilter) {
+        _filter.value = filter
+    }
+
+    fun clearFilter() {
+        _filter.value = ContactFilter()
+    }
+
+    /** True when the visible list is narrowed by the search box or the filter sheet. */
+    fun hasActiveCriteria(): Boolean =
+        _searchQuery.value.orEmpty().isNotBlank() || _filter.value?.isActive == true
 
     fun enterSelectionMode(contactId: Long) {
         _isSelectionMode.value = true
@@ -138,6 +205,10 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
     }
 
     suspend fun syncNow() = repository.syncNow()
+
+    fun toggleBookmark(contactId: Long) {
+        viewModelScope.launch { repository.toggleBookmark(contactId) }
+    }
 
     fun deleteSelected() {
         val ids = _selectedIds.value?.toList() ?: return

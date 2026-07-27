@@ -8,5 +8,7 @@ data class UserDto(
     val name: String?,
     val email: String,
     val provider: String,
-    val createdAt: String?
+    val createdAt: String?,
+    // Defaulted because sessions persisted before bookmarks existed decode without this field.
+    val bookmarkedContactIds: List<String> = emptyList()
 )

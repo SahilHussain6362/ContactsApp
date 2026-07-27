@@ -6,6 +6,8 @@ import com.mohdhussain.hrcontacts.data.remote.ApiService
 import com.mohdhussain.hrcontacts.data.remote.RetrofitClient
 import com.mohdhussain.hrcontacts.data.remote.dto.ErrorResponseDto
 import com.mohdhussain.hrcontacts.data.remote.dto.GoogleAuthRequestDto
+import com.mohdhussain.hrcontacts.data.remote.dto.UpdateProfileRequestDto
+import com.mohdhussain.hrcontacts.data.remote.dto.UserDto
 import com.squareup.moshi.Moshi
 import retrofit2.HttpException
 
@@ -20,9 +22,23 @@ class AuthRepository(
 
     fun isLoggedIn(): Boolean = tokenManager.isLoggedIn()
 
+    /** The cached profile. Available offline, which is why the profile screen reads this first. */
+    fun currentUser(): UserDto? = tokenManager.user
+
+    fun currentUserId(): String? = tokenManager.userId
+
     suspend fun loginWithGoogle(idToken: String): Result<Unit> = runCatching {
         val response = api.googleLogin(GoogleAuthRequestDto(idToken))
         tokenManager.saveSession(response.jwt, response.user)
+    }.mapAuthFailure()
+
+    /** Refreshes the cached profile from the server and returns it. */
+    suspend fun refreshProfile(): Result<UserDto> = runCatching {
+        api.getProfile().also { tokenManager.updateUser(it) }
+    }.mapAuthFailure()
+
+    suspend fun updateName(name: String): Result<UserDto> = runCatching {
+        api.updateProfile(UpdateProfileRequestDto(name.trim())).also { tokenManager.updateUser(it) }
     }.mapAuthFailure()
 
     fun logout() = tokenManager.clear()

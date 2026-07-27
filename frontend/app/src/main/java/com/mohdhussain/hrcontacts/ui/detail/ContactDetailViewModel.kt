@@ -17,6 +17,11 @@ class ContactDetailViewModel(private val repository: ContactRepository) : ViewMo
         }
     }
 
+    fun toggleBookmark() {
+        val id = _contact.value?.id ?: return
+        viewModelScope.launch { repository.toggleBookmark(id) }
+    }
+
     fun deleteContact(onDeleted: () -> Unit) {
         val c = _contact.value ?: return
         viewModelScope.launch {

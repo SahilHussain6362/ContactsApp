@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup rules for API 30 and below (android:fullBackupContent).
+
+  auth_prefs.xml stores Tink keysets wrapped by a device-bound AndroidKeyStore key that
+  can never leave the device. Backing the file up and restoring it elsewhere produces
+  ciphertext no local key can open, which crashes TokenManager on launch — so keep it out
+  of backups entirely and let the user sign in again on the new device.
+-->
+<full-backup-content>
+    <exclude
+        domain="sharedpref"
+        path="auth_prefs.xml" />
+</full-backup-content>

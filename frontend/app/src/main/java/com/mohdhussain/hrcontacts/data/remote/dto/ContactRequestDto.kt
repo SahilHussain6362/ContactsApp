@@ -9,5 +9,6 @@ data class ContactRequestDto(
     val mobile: String?,
     val emails: List<String>?,
     val linkedinProfile: String?,
-    val verified: Boolean
+    // No `verified`: the server owns that flag and ignores anything a client sends for it.
+    val isPrivate: Boolean
 )

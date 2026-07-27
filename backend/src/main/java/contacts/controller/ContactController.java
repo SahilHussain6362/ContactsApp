@@ -3,6 +3,7 @@ package contacts.controller;
 import contacts.dto.BatchSyncRequest;
 import contacts.dto.BatchSyncResponse;
 import contacts.dto.ContactRequest;
+import contacts.dto.UserDto;
 import contacts.model.Contact;
 import contacts.service.ContactService;
 import jakarta.validation.Valid;
@@ -24,6 +25,26 @@ public class ContactController {
     @GetMapping
     public List<Contact> getAllContacts() {
         return service.getAllContacts();
+    }
+
+
+    @GetMapping("/mine")
+    public List<Contact> getMyContacts() {
+        return service.getMyContacts();
+    }
+
+
+    // Both bookmark routes return the caller's full UserDto so the client can overwrite its
+    // cached session user wholesale instead of patching a set it might have raced against.
+    @PutMapping("/{id}/bookmark")
+    public UserDto addBookmark(@PathVariable String id) {
+        return service.addBookmark(id);
+    }
+
+
+    @DeleteMapping("/{id}/bookmark")
+    public UserDto removeBookmark(@PathVariable String id) {
+        return service.removeBookmark(id);
     }
 
 

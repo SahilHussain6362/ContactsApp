@@ -11,6 +11,10 @@ data class RemoteContact(
     val emails: List<String>?,
     val linkedinProfile: String?,
     val verified: Boolean,
+    // Defaulted so a build pointed at a server that predates the flag still parses.
+    val isPrivate: Boolean = false,
+    // Null for contacts the server created before it tracked ownership.
+    val createdBy: String? = null,
     val createdAt: String?,
     val updatedAt: String?,
     val deleted: Boolean

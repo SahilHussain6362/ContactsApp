@@ -49,31 +49,22 @@ class ContactListFragment : Fragment() {
         setupRecyclerView()
         setupSearchView()
         setupFilterChips()
+        setupFilterButton()
         setupFab()
-        setupToolbarMenu()
         observeViewModel()
     }
 
-    private fun setupToolbarMenu() {
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            if (item.itemId == R.id.action_logout) {
-                confirmLogout()
-                true
-            } else {
-                false
+    private fun setupFilterButton() {
+        binding.btnFilter.setOnClickListener {
+            // childFragmentManager keeps this fragment as the sheet's parent, which is
+            // how the sheet reaches the shared ContactListViewModel.
+            if (childFragmentManager.findFragmentByTag(FilterBottomSheetFragment.TAG) == null) {
+                FilterBottomSheetFragment().show(
+                    childFragmentManager,
+                    FilterBottomSheetFragment.TAG
+                )
             }
         }
-    }
-
-    private fun confirmLogout() {
-        AlertDialog.Builder(requireContext())
-            .setMessage(R.string.logout_confirm)
-            .setPositiveButton(R.string.logout) { _, _ ->
-                AuthRepository.getInstance(requireContext()).logout()
-                findNavController().navigate(R.id.action_global_to_welcome)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
     }
 
     private fun setupAdapter() {
@@ -93,6 +84,9 @@ class ContactListFragment : Fragment() {
             },
             onHeaderCheckboxClick = { company ->
                 viewModel.selectAllFromCompany(company)
+            },
+            onBookmarkClick = { contactId ->
+                viewModel.toggleBookmark(contactId)
             }
         )
     }
@@ -134,6 +128,17 @@ class ContactListFragment : Fragment() {
             val hasContacts = items.any { it is ListItem.ContactRow }
             binding.recyclerView.isVisible = hasContacts
             binding.emptyView.isVisible = !hasContacts
+            binding.emptyView.setText(
+                if (viewModel.hasActiveCriteria()) R.string.no_results else R.string.no_contacts
+            )
+        }
+
+        viewModel.filter.observe(viewLifecycleOwner) { filter ->
+            binding.btnFilter.text = if (filter.isActive) {
+                getString(R.string.filter_with_count, filter.activeCount)
+            } else {
+                getString(R.string.filter)
+            }
         }
 
         viewModel.isSelectionMode.observe(viewLifecycleOwner) { inSelectionMode ->

@@ -29,7 +29,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        // Only the login exchange is public. This deliberately does NOT use
+                        // /api/v1/auth/** — the profile endpoints live under that prefix and
+                        // must stay authenticated, since they read and write the caller's own record.
+                        .requestMatchers("/api/v1/auth/google").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) ->
                         res.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized")))

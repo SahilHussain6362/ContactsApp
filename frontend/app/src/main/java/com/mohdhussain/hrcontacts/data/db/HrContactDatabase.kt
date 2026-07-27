@@ -9,7 +9,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mohdhussain.hrcontacts.data.model.HrContact
 
-@Database(entities = [HrContact::class], version = 5, exportSchema = false)
+@Database(entities = [HrContact::class], version = 7, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class HrContactDatabase : RoomDatabase() {
 
@@ -81,14 +81,33 @@ abstract class HrContactDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE hr_contacts ADD COLUMN isPrivate INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // Ownership and bookmarks. Existing rows get createdBy = NULL and bookmarked = 0; the
+        // first sync after upgrading fills both in from the server, so nothing is lost by
+        // starting them empty.
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE hr_contacts ADD COLUMN createdBy TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE hr_contacts ADD COLUMN bookmarked INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE hr_contacts ADD COLUMN bookmarkDirty INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): HrContactDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
                     HrContactDatabase::class.java,
                     "hr_contacts.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
-                    .build().also { INSTANCE = it }
+                ).addMigrations(
+                    MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
+                    MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7
+                ).build().also { INSTANCE = it }
             }
     }
 }

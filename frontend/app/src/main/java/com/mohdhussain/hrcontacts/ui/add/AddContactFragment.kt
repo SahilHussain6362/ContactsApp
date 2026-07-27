@@ -55,7 +55,7 @@ class AddContactFragment : Fragment() {
                 binding.etCompany.setText(contact.company)
                 binding.etMobile.setText(contact.mobile)
                 binding.etLinkedin.setText(contact.linkedinProfile)
-                binding.switchVerified.isChecked = contact.verified
+                binding.switchPrivate.isChecked = contact.isPrivate
                 binding.emailsContainer.removeAllViews()
                 if (contact.emails.isEmpty()) {
                     addEmailRow()
@@ -143,7 +143,7 @@ class AddContactFragment : Fragment() {
         }
 
         if (valid) {
-            viewModel.save(name, company, mobile, validEmails, linkedin, binding.switchVerified.isChecked)
+            viewModel.save(name, company, mobile, validEmails, linkedin, binding.switchPrivate.isChecked)
         }
     }
 

@@ -50,6 +50,10 @@ class ContactDetailFragment : Fragment() {
 
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.action_bookmark -> {
+                    viewModel.toggleBookmark()
+                    true
+                }
                 R.id.action_edit -> {
                     findNavController().navigate(
                         R.id.action_detail_to_edit,
@@ -72,6 +76,13 @@ class ContactDetailFragment : Fragment() {
             binding.tvMobile.text = contact.mobile
             binding.tvInitial.text = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
 
+            binding.toolbar.menu.findItem(R.id.action_bookmark)?.apply {
+                setIcon(
+                    if (contact.bookmarked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
+                )
+                setTitle(if (contact.bookmarked) R.string.bookmark_remove else R.string.bookmark_add)
+            }
+
             if (contact.verified) {
                 binding.tvVerifiedBadge.text = getString(R.string.verified)
                 binding.tvVerifiedBadge.setBackgroundResource(R.drawable.bg_badge_verified)
@@ -85,6 +96,9 @@ class ContactDetailFragment : Fragment() {
                     ContextCompat.getColor(requireContext(), R.color.unverified_badge_text)
                 )
             }
+
+            binding.tvPrivateBadge.visibility =
+                if (contact.isPrivate) android.view.View.VISIBLE else android.view.View.GONE
 
             if (contact.emails.isNotEmpty()) {
                 binding.emailCard.visibility = android.view.View.VISIBLE
