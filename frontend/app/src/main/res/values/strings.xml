@@ -74,9 +74,40 @@
     <string name="profile_signed_in_with">Signed in with %s</string>
     <string name="profile_tab_bookmarks">Bookmarked</string>
     <string name="profile_tab_added">Added by me</string>
+    <string name="profile_tab_templates">Templates</string>
     <string name="profile_no_bookmarks">No bookmarked contacts yet.\nTap the bookmark icon on any contact to save it here.</string>
     <string name="profile_no_added">You haven\'t added any contacts yet.</string>
     <string name="profile_counts">%1$d bookmarked · %2$d added</string>
+
+    <!-- Message templates -->
+    <string name="templates_email_title">Email templates</string>
+    <string name="templates_whatsapp_title">WhatsApp templates</string>
+    <string name="templates_count">%1$d of %2$d saved</string>
+    <string name="templates_add">Add</string>
+    <string name="templates_edit">Edit template</string>
+    <string name="templates_delete">Delete template</string>
+    <string name="templates_none_email">Nothing saved yet. Add one to prefill the subject and body when you mail a contact.</string>
+    <string name="templates_none_whatsapp">Nothing saved yet. Add one to prefill the message when you open a chat.</string>
+    <string name="templates_new_email">New email template</string>
+    <string name="templates_edit_email">Edit email template</string>
+    <string name="templates_new_whatsapp">New WhatsApp template</string>
+    <string name="templates_edit_whatsapp">Edit WhatsApp template</string>
+    <string name="templates_hint_email">Prefills the subject and body when you mail a contact.</string>
+    <string name="templates_hint_whatsapp">Prefills the message when you open a WhatsApp chat.</string>
+    <string name="templates_heading">Heading</string>
+    <string name="templates_body">Body</string>
+    <string name="templates_message">Message</string>
+    <string name="templates_heading_required">Heading can\'t be empty</string>
+    <string name="templates_body_required">Body can\'t be empty</string>
+    <string name="templates_message_required">Message can\'t be empty</string>
+    <string name="templates_saved">Template saved</string>
+    <string name="templates_deleted">Template deleted</string>
+    <string name="templates_delete_confirm">Delete this template?</string>
+    <string name="templates_limit_title">Template limit reached</string>
+    <string name="templates_limit_email">You can store at most %d email templates. Delete one to add another.</string>
+    <string name="templates_limit_whatsapp">You can store at most %d WhatsApp templates. Delete one to add another.</string>
+    <string name="templates_choose_email">Choose an email template</string>
+    <string name="templates_choose_whatsapp">Choose a WhatsApp template</string>
 
     <!-- Bookmarks -->
     <string name="bookmark_add">Bookmark contact</string>

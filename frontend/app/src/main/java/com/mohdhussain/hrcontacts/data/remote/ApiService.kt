@@ -4,10 +4,12 @@ import com.mohdhussain.hrcontacts.data.remote.dto.AuthResponseDto
 import com.mohdhussain.hrcontacts.data.remote.dto.BatchSyncRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.BatchSyncResponseDto
 import com.mohdhussain.hrcontacts.data.remote.dto.ContactRequestDto
+import com.mohdhussain.hrcontacts.data.remote.dto.EmailTemplateRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.GoogleAuthRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.RemoteContact
 import com.mohdhussain.hrcontacts.data.remote.dto.UpdateProfileRequestDto
 import com.mohdhussain.hrcontacts.data.remote.dto.UserDto
+import com.mohdhussain.hrcontacts.data.remote.dto.WhatsappTemplateRequestDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -28,6 +30,32 @@ interface ApiService {
 
     @PATCH("api/v1/auth/me")
     suspend fun updateProfile(@Body request: UpdateProfileRequestDto): UserDto
+
+    // Template routes have no GET of their own — templates come down inside the profile above.
+    // Like the bookmark routes, every write answers with the whole profile.
+    @POST("api/v1/templates/email")
+    suspend fun createEmailTemplate(@Body request: EmailTemplateRequestDto): UserDto
+
+    @PUT("api/v1/templates/email/{id}")
+    suspend fun updateEmailTemplate(
+        @Path("id") id: String,
+        @Body request: EmailTemplateRequestDto
+    ): UserDto
+
+    @DELETE("api/v1/templates/email/{id}")
+    suspend fun deleteEmailTemplate(@Path("id") id: String): UserDto
+
+    @POST("api/v1/templates/whatsapp")
+    suspend fun createWhatsappTemplate(@Body request: WhatsappTemplateRequestDto): UserDto
+
+    @PUT("api/v1/templates/whatsapp/{id}")
+    suspend fun updateWhatsappTemplate(
+        @Path("id") id: String,
+        @Body request: WhatsappTemplateRequestDto
+    ): UserDto
+
+    @DELETE("api/v1/templates/whatsapp/{id}")
+    suspend fun deleteWhatsappTemplate(@Path("id") id: String): UserDto
 
     // Both bookmark routes return the caller's whole profile, so the client replaces its cached
     // user rather than trying to patch a set it may have raced against.

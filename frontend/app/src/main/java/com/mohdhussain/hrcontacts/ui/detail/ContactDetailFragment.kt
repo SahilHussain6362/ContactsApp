@@ -13,6 +13,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.mohdhussain.hrcontacts.R
+import com.mohdhussain.hrcontacts.data.remote.dto.EmailTemplateDto
+import com.mohdhussain.hrcontacts.data.remote.dto.WhatsappTemplateDto
+import com.mohdhussain.hrcontacts.data.remote.dto.label
 import com.mohdhussain.hrcontacts.databinding.FragmentContactDetailBinding
 import com.mohdhussain.hrcontacts.databinding.ItemEmailDetailRowBinding
 import com.mohdhussain.hrcontacts.util.ClipboardUtils
@@ -123,17 +126,7 @@ class ContactDetailFragment : Fragment() {
                 startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.mobile}")))
             }
 
-            binding.btnWhatsapp.setOnClickListener {
-                val cleaned = contact.mobile.replace(Regex("[^0-9+]"), "")
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$cleaned")).apply {
-                    setPackage("com.whatsapp")
-                }
-                try {
-                    startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    Snackbar.make(binding.root, R.string.whatsapp_not_installed, Snackbar.LENGTH_SHORT).show()
-                }
-            }
+            binding.btnWhatsapp.setOnClickListener { composeWhatsapp(contact.mobile) }
 
             binding.btnOpenLinkedin.setOnClickListener {
                 val uri = Uri.parse(contact.linkedinProfile)
@@ -163,14 +156,75 @@ class ContactDetailFragment : Fragment() {
                 ClipboardUtils.copyToClipboard(requireContext(), "Email", email)
                 Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
             }
-            rowBinding.btnSendEmailRow.setOnClickListener {
-                val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
-                try {
-                    startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
-                }
+            rowBinding.btnSendEmailRow.setOnClickListener { composeEmail(email) }
+        }
+    }
+
+    /**
+     * Opens a mail composer, prefilled from one of the user's own templates.
+     *
+     * With a single template there is nothing to choose between, so it is applied straight away —
+     * the composer is still editable, so this takes nothing away. More than one and the user picks.
+     */
+    private fun composeEmail(email: String) {
+        val templates = viewModel.emailTemplates
+        if (templates.size <= 1) {
+            sendEmail(email, templates.firstOrNull())
+            return
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.templates_choose_email)
+            .setItems(templates.map { it.heading }.toTypedArray()) { _, index ->
+                sendEmail(email, templates[index])
             }
+            .show()
+    }
+
+    private fun sendEmail(email: String, template: EmailTemplateDto?) {
+        // mailto: carries the recipient; subject and body ride as extras, which every mail app
+        // honours — encoding them into the URI itself is the part that is patchily supported.
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email")).apply {
+            template?.let {
+                putExtra(Intent.EXTRA_SUBJECT, it.heading)
+                putExtra(Intent.EXTRA_TEXT, it.body)
+            }
+        }
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    /** The WhatsApp counterpart of [composeEmail]; a chat has no subject, so only a message. */
+    private fun composeWhatsapp(mobile: String) {
+        val templates = viewModel.whatsappTemplates
+        if (templates.size <= 1) {
+            sendWhatsapp(mobile, templates.firstOrNull())
+            return
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.templates_choose_whatsapp)
+            .setItems(templates.map { it.label() }.toTypedArray()) { _, index ->
+                sendWhatsapp(mobile, templates[index])
+            }
+            .show()
+    }
+
+    private fun sendWhatsapp(mobile: String, template: WhatsappTemplateDto?) {
+        val cleaned = mobile.replace(Regex("[^0-9+]"), "")
+        // wa.me takes the prefilled text as a percent-encoded query parameter.
+        val url = buildString {
+            append("https://wa.me/").append(cleaned)
+            template?.let { append("?text=").append(Uri.encode(it.message)) }
+        }
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            setPackage("com.whatsapp")
+        }
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Snackbar.make(binding.root, R.string.whatsapp_not_installed, Snackbar.LENGTH_SHORT).show()
         }
     }
 
