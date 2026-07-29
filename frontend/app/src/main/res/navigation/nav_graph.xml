@@ -29,31 +29,41 @@
         android:label="HR Contacts"
         tools:layout="@layout/fragment_welcome" />
 
+    <!-- Home tab: the full contact list (scope defaults to ALL). Navigation to the detail screen
+         and the add-contact sheet is done by direct destination id from the fragment, since both
+         this node and contactsFilteredFragment below host the same Fragment class and a named
+         action would only belong to one of them. -->
     <fragment
         android:id="@+id/contactListFragment"
         android:name="com.mohdhussain.hrcontacts.ui.list.ContactListFragment"
         android:label="HR Contacts"
-        tools:layout="@layout/fragment_contact_list">
+        tools:layout="@layout/fragment_contact_list" />
 
-        <action
-            android:id="@+id/action_list_to_detail"
-            app:destination="@id/contactDetailFragment" />
+    <!-- Pushed from contactsHubFragment with a "scope" argument (MINE or BOOKMARKED). A separate
+         destination id from contactListFragment so the two never collide in MainActivity's
+         tab-selection bookkeeping, even though both resolve to ContactListFragment. Not a
+         top-level destination: it hides the bottom nav and relies on its own back arrow. -->
+    <fragment
+        android:id="@+id/contactsFilteredFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.list.ContactListFragment"
+        android:label="HR Contacts"
+        tools:layout="@layout/fragment_contact_list" />
 
-        <action
-            android:id="@+id/action_list_to_add"
-            app:destination="@id/addContactFragment" />
-    </fragment>
+    <fragment
+        android:id="@+id/jobsFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.jobs.JobsFragment"
+        android:label="@string/jobs_title" />
+
+    <fragment
+        android:id="@+id/contactsHubFragment"
+        android:name="com.mohdhussain.hrcontacts.ui.hub.ContactsHubFragment"
+        android:label="@string/contacts_hub_title" />
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.mohdhussain.hrcontacts.ui.profile.ProfileFragment"
         android:label="@string/nav_you"
-        tools:layout="@layout/fragment_profile">
-
-        <action
-            android:id="@+id/action_profile_to_detail"
-            app:destination="@id/contactDetailFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/contactDetailFragment"

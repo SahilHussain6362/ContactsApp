@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ComposeView
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -21,34 +24,36 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.mohdhussain.hrcontacts.BuildConfig
 import com.mohdhussain.hrcontacts.R
-import com.mohdhussain.hrcontacts.databinding.FragmentWelcomeBinding
+import com.mohdhussain.hrcontacts.ui.theme.HrContactsTheme
 import kotlinx.coroutines.launch
 
 class WelcomeFragment : Fragment() {
-
-    private var _binding: FragmentWelcomeBinding? = null
-    private val binding get() = _binding!!
 
     private lateinit var viewModel: WelcomeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentWelcomeBinding.inflate(inflater, container, false)
-        return binding.root
+        viewModel = ViewModelProvider(
+            this,
+            WelcomeViewModelFactory(requireContext())
+        )[WelcomeViewModel::class.java]
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val loading by viewModel.loading.observeAsState(initial = false)
+                HrContactsTheme {
+                    WelcomeScreen(
+                        loading = loading,
+                        onGoogleSignIn = ::launchGoogleSignIn
+                    )
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        viewModel = ViewModelProvider(this, WelcomeViewModelFactory(requireContext()))[WelcomeViewModel::class.java]
-
-        binding.btnGoogle.setOnClickListener { launchGoogleSignIn() }
-
-        viewModel.loading.observe(viewLifecycleOwner) { loading ->
-            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-            binding.btnGoogle.isEnabled = !loading
-        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -95,11 +100,6 @@ class WelcomeFragment : Fragment() {
                 Toast.makeText(requireContext(), R.string.google_sign_in_failed, Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

@@ -62,6 +62,11 @@
     <!-- Bottom navigation -->
     <string name="nav_records">Records</string>
     <string name="nav_you">You</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_jobs">Jobs</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_contacts_hub">Contacts</string>
+    <string name="nav_profile">Profile</string>
 
     <!-- Profile -->
     <string name="profile_title">You</string>
@@ -114,4 +119,86 @@
     <string name="bookmark_remove">Remove bookmark</string>
     <string name="bookmark_added">Bookmarked</string>
     <string name="bookmark_removed">Bookmark removed</string>
+
+    <!-- ============================================================================
+         Added by the Compose redesign. Nothing above this line was changed or removed.
+         ============================================================================ -->
+
+    <!-- Navigation and selection -->
+    <string name="navigate_back">Back</string>
+    <string name="selection_clear">Clear selection</string>
+    <string name="selection_state_selected">Selected</string>
+    <string name="selection_state_not_selected">Not selected</string>
+    <string name="search_clear">Clear search</string>
+
+    <!-- Labelled quick actions on the contact detail screen. The old screen offered these as
+         unlabelled icons. -->
+    <string name="action_call">Call</string>
+    <string name="action_whatsapp">WhatsApp</string>
+    <string name="action_email">Email</string>
+    <string name="action_open">Open</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_open_linkedin">Open LinkedIn profile</string>
+    <string name="action_copy_linkedin">Copy LinkedIn profile</string>
+
+    <!-- Confirmations. Previously hard-coded English literals in the fragments. -->
+    <string name="delete_contact_title">Delete contact?</string>
+    <string name="delete_contact_message">This removes the contact from your records on every device.</string>
+    <string name="delete_selected_title">Delete selected contacts?</string>
+    <string name="delete_selected_message">This removes %d contacts from your records on every device.</string>
+    <string name="logout_title">Log out?</string>
+
+    <!-- Empty states. Each is a title plus a line explaining what fills it. -->
+    <string name="empty_contacts_title">No HR contacts yet</string>
+    <string name="empty_contacts_body">Save a recruiter\'s details once, then call, mail or message them from here any time.</string>
+    <string name="empty_contacts_action">Add your first contact</string>
+    <string name="empty_results_title">No matches</string>
+    <string name="empty_results_body">No contacts match your search or filters. Try clearing one of them.</string>
+    <string name="empty_results_action">Clear filters</string>
+    <string name="empty_bookmarks_title">Nothing bookmarked</string>
+    <string name="empty_bookmarks_body">Tap the bookmark icon on any contact to keep it here for quick access.</string>
+    <string name="empty_added_title">You haven\'t added anyone yet</string>
+    <string name="empty_added_body">Contacts you add appear here, whether they are shared or private.</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_tagline">Your HR contacts, organised</string>
+    <string name="welcome_subtitle">Keep recruiter details together, grouped by company, and reach out in one tap.</string>
+    <string name="welcome_value_search">Search and filter by name, company or contact details</string>
+    <string name="welcome_value_templates">Reuse your own email and WhatsApp templates</string>
+    <string name="welcome_value_private">Keep private contacts visible only to you</string>
+    <string name="welcome_legal">Signing in syncs your contacts to your account so they survive a reinstall.</string>
+
+    <!-- Contact detail -->
+    <string name="detail_title">HR profile</string>
+    <string name="detail_section_reach_out">Reach out</string>
+    <string name="detail_no_details_title">No contact details saved</string>
+    <string name="detail_no_details_body">Edit this contact to add a mobile number or an email address.</string>
+
+    <!-- Add / edit contact -->
+    <string name="form_section_identity">Who they are</string>
+    <string name="form_section_reach">How to reach them</string>
+    <string name="form_section_visibility">Visibility</string>
+    <string name="email_remove">Remove this email</string>
+    <string name="mobile_optional_hint">Optional if you add an email below</string>
+
+    <!-- Profile -->
+    <string name="profile_stat_bookmarked">Bookmarked</string>
+    <string name="profile_stat_added">Added by me</string>
+    <string name="profile_templates_intro">Templates prefill your message so you are not retyping the same introduction.</string>
+
+    <!-- Jobs -->
+    <string name="jobs_title">Jobs</string>
+    <string name="jobs_coming_soon_title">Coming soon</string>
+    <string name="jobs_coming_soon_body">We\'re building a jobs board so you can track openings alongside your HR contacts. Check back soon.</string>
+
+    <!-- Your Contacts hub -->
+    <string name="contacts_hub_title">Your Contacts</string>
+    <string name="contacts_hub_your_contacts">Your Contacts</string>
+    <string name="contacts_hub_your_contacts_body">Contacts you\'ve added</string>
+    <string name="contacts_hub_bookmarks">Bookmarks</string>
+    <string name="contacts_hub_bookmarks_body">Contacts you\'ve bookmarked</string>
+    <string name="contacts_hub_folder_count">%d contacts</string>
+
+    <!-- Add contact sheet -->
+    <string name="add_contact_sheet_title">Add contact</string>
 </resources>

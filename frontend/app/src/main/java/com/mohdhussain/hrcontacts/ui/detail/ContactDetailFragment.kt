@@ -4,26 +4,32 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.mohdhussain.hrcontacts.R
 import com.mohdhussain.hrcontacts.data.remote.dto.EmailTemplateDto
 import com.mohdhussain.hrcontacts.data.remote.dto.WhatsappTemplateDto
 import com.mohdhussain.hrcontacts.data.remote.dto.label
-import com.mohdhussain.hrcontacts.databinding.FragmentContactDetailBinding
-import com.mohdhussain.hrcontacts.databinding.ItemEmailDetailRowBinding
+import com.mohdhussain.hrcontacts.ui.theme.HrContactsTheme
 import com.mohdhussain.hrcontacts.util.ClipboardUtils
 
+/**
+ * Host for [ContactDetailScreen].
+ *
+ * Owns everything that leaves the app: the dialler, WhatsApp, the mail composer, LinkedIn and the
+ * clipboard. All of that logic — including how a template is attached to an intent — is carried over
+ * unchanged; the screen only decides which template was chosen and hands the index back.
+ */
 class ContactDetailFragment : Fragment() {
-
-    private var _binding: FragmentContactDetailBinding? = null
-    private val binding get() = _binding!!
 
     private lateinit var viewModel: ContactDetailViewModel
 
@@ -35,13 +41,6 @@ class ContactDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentContactDetailBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(
             this,
             ContactDetailViewModelFactory(requireContext())
@@ -49,141 +48,84 @@ class ContactDetailFragment : Fragment() {
 
         viewModel.loadContact(contactId)
 
-        binding.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val contact by viewModel.contact.observeAsState()
 
-        binding.toolbar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_bookmark -> {
-                    viewModel.toggleBookmark()
-                    true
+                HrContactsTheme {
+                    val current = contact
+                    if (current == null) {
+                        ContactDetailLoading(onBack = { findNavController().popBackStack() })
+                    } else {
+                        // Read on every recomposition rather than held: every template write
+                        // refreshes the cached profile, so a template added a moment ago on the
+                        // profile page is already here.
+                        val emailTemplates = viewModel.emailTemplates
+                        val whatsappTemplates = viewModel.whatsappTemplates
+
+                        ContactDetailScreen(
+                            name = current.name,
+                            company = current.company,
+                            mobile = current.mobile,
+                            emails = current.emails,
+                            linkedinProfile = current.linkedinProfile,
+                            verified = current.verified,
+                            isPrivate = current.isPrivate,
+                            bookmarked = current.bookmarked,
+                            emailTemplateLabels = emailTemplates.map { it.heading },
+                            whatsappTemplateLabels = whatsappTemplates.map { it.label() },
+                            onBack = { findNavController().popBackStack() },
+                            onToggleBookmark = viewModel::toggleBookmark,
+                            onEdit = {
+                                findNavController().navigate(
+                                    R.id.action_detail_to_edit,
+                                    bundleOf("contactId" to contactId)
+                                )
+                            },
+                            onDelete = {
+                                viewModel.deleteContact { findNavController().popBackStack() }
+                            },
+                            onCall = { dial(current.mobile) },
+                            onCopyMobile = {
+                                ClipboardUtils.copyToClipboard(requireContext(), "Mobile", current.mobile)
+                            },
+                            onCopyEmail = { email ->
+                                ClipboardUtils.copyToClipboard(requireContext(), "Email", email)
+                            },
+                            onCopyLinkedin = {
+                                ClipboardUtils.copyToClipboard(
+                                    requireContext(),
+                                    "LinkedIn",
+                                    current.linkedinProfile
+                                )
+                            },
+                            onSendEmail = { email, templateIndex ->
+                                sendEmail(email, templateIndex?.let(emailTemplates::getOrNull))
+                            },
+                            onSendWhatsapp = { templateIndex ->
+                                sendWhatsapp(
+                                    current.mobile,
+                                    templateIndex?.let(whatsappTemplates::getOrNull)
+                                )
+                            },
+                            onOpenLinkedin = { openLinkedin(current.linkedinProfile) }
+                        )
+                    }
                 }
-                R.id.action_edit -> {
-                    findNavController().navigate(
-                        R.id.action_detail_to_edit,
-                        bundleOf("contactId" to contactId)
-                    )
-                    true
-                }
-                R.id.action_delete -> {
-                    confirmAndDelete()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        viewModel.contact.observe(viewLifecycleOwner) { contact ->
-            contact ?: return@observe
-            binding.tvName.text = contact.name
-            binding.tvCompany.text = contact.company
-            binding.tvMobile.text = contact.mobile
-            binding.tvInitial.text = contact.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
-
-            binding.toolbar.menu.findItem(R.id.action_bookmark)?.apply {
-                setIcon(
-                    if (contact.bookmarked) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
-                )
-                setTitle(if (contact.bookmarked) R.string.bookmark_remove else R.string.bookmark_add)
-            }
-
-            if (contact.verified) {
-                binding.tvVerifiedBadge.text = getString(R.string.verified)
-                binding.tvVerifiedBadge.setBackgroundResource(R.drawable.bg_badge_verified)
-                binding.tvVerifiedBadge.setTextColor(
-                    ContextCompat.getColor(requireContext(), R.color.verified_badge_text)
-                )
-            } else {
-                binding.tvVerifiedBadge.text = getString(R.string.not_verified)
-                binding.tvVerifiedBadge.setBackgroundResource(R.drawable.bg_badge_unverified)
-                binding.tvVerifiedBadge.setTextColor(
-                    ContextCompat.getColor(requireContext(), R.color.unverified_badge_text)
-                )
-            }
-
-            binding.tvPrivateBadge.visibility =
-                if (contact.isPrivate) android.view.View.VISIBLE else android.view.View.GONE
-
-            if (contact.emails.isNotEmpty()) {
-                binding.emailCard.visibility = android.view.View.VISIBLE
-                bindEmailRows(contact.emails)
-            } else {
-                binding.emailCard.visibility = android.view.View.GONE
-            }
-
-            if (contact.linkedinProfile.isNotEmpty()) {
-                binding.linkedinCard.visibility = android.view.View.VISIBLE
-                binding.tvLinkedin.text = contact.linkedinProfile
-            } else {
-                binding.linkedinCard.visibility = android.view.View.GONE
-            }
-
-            binding.btnCopyMobile.setOnClickListener {
-                ClipboardUtils.copyToClipboard(requireContext(), "Mobile", contact.mobile)
-                Snackbar.make(binding.root, R.string.mobile_copied, Snackbar.LENGTH_SHORT).show()
-            }
-
-            binding.btnCall.setOnClickListener {
-                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.mobile}")))
-            }
-
-            binding.btnWhatsapp.setOnClickListener { composeWhatsapp(contact.mobile) }
-
-            binding.btnOpenLinkedin.setOnClickListener {
-                val uri = Uri.parse(contact.linkedinProfile)
-                val appIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-                    setPackage("com.linkedin.android")
-                }
-                try {
-                    startActivity(appIntent)
-                } catch (e: ActivityNotFoundException) {
-                    startActivity(Intent(Intent.ACTION_VIEW, uri))
-                }
-            }
-
-            binding.btnCopyLinkedin.setOnClickListener {
-                ClipboardUtils.copyToClipboard(requireContext(), "LinkedIn", contact.linkedinProfile)
-                Snackbar.make(binding.root, R.string.linkedin_copied, Snackbar.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun bindEmailRows(emails: List<String>) {
-        binding.emailsContainer.removeAllViews()
-        emails.forEach { email ->
-            val rowBinding = ItemEmailDetailRowBinding.inflate(layoutInflater, binding.emailsContainer, true)
-            rowBinding.tvEmailRow.text = email
-            rowBinding.btnCopyEmailRow.setOnClickListener {
-                ClipboardUtils.copyToClipboard(requireContext(), "Email", email)
-                Snackbar.make(binding.root, R.string.email_copied, Snackbar.LENGTH_SHORT).show()
-            }
-            rowBinding.btnSendEmailRow.setOnClickListener { composeEmail(email) }
-        }
-    }
-
-    /**
-     * Opens a mail composer, prefilled from one of the user's own templates.
-     *
-     * With a single template there is nothing to choose between, so it is applied straight away —
-     * the composer is still editable, so this takes nothing away. More than one and the user picks.
-     */
-    private fun composeEmail(email: String) {
-        val templates = viewModel.emailTemplates
-        if (templates.size <= 1) {
-            sendEmail(email, templates.firstOrNull())
-            return
-        }
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.templates_choose_email)
-            .setItems(templates.map { it.heading }.toTypedArray()) { _, index ->
-                sendEmail(email, templates[index])
-            }
-            .show()
+    private fun dial(mobile: String) {
+        startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$mobile")))
     }
 
     private fun sendEmail(email: String, template: EmailTemplateDto?) {
-        // mailto: carries the recipient; subject and body ride as extras, which every mail app
-        // honours — encoding them into the URI itself is the part that is patchily supported.
-        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email")).apply {
+        // Gmail ignores EXTRA_SUBJECT/EXTRA_TEXT when the recipient rides in the mailto: URI itself
+        // (mailto:$email) — it only honours them when the address instead comes through EXTRA_EMAIL
+        // and the URI is left as the bare "mailto:" scheme.
+        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
             template?.let {
                 putExtra(Intent.EXTRA_SUBJECT, it.heading)
                 putExtra(Intent.EXTRA_TEXT, it.body)
@@ -192,23 +134,8 @@ class ContactDetailFragment : Fragment() {
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Snackbar.make(binding.root, R.string.no_email_app, Snackbar.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.no_email_app, Toast.LENGTH_SHORT).show()
         }
-    }
-
-    /** The WhatsApp counterpart of [composeEmail]; a chat has no subject, so only a message. */
-    private fun composeWhatsapp(mobile: String) {
-        val templates = viewModel.whatsappTemplates
-        if (templates.size <= 1) {
-            sendWhatsapp(mobile, templates.firstOrNull())
-            return
-        }
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.templates_choose_whatsapp)
-            .setItems(templates.map { it.label() }.toTypedArray()) { _, index ->
-                sendWhatsapp(mobile, templates[index])
-            }
-            .show()
     }
 
     private fun sendWhatsapp(mobile: String, template: WhatsappTemplateDto?) {
@@ -224,24 +151,19 @@ class ContactDetailFragment : Fragment() {
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Snackbar.make(binding.root, R.string.whatsapp_not_installed, Snackbar.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.whatsapp_not_installed, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun confirmAndDelete() {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Delete this contact?")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteContact {
-                    findNavController().popBackStack()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun openLinkedin(profile: String) {
+        val uri = Uri.parse(profile)
+        val appIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage("com.linkedin.android")
+        }
+        try {
+            startActivity(appIntent)
+        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
     }
 }

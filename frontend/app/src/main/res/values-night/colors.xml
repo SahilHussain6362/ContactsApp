@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dark-mode counterparts for every colour in values/colors.xml, mirroring the dark scheme in
+  ui/theme/Color.kt. Previously absent, which left the badge and bookmark colours stuck at their
+  light values on a near-black surface.
+-->
+<resources>
+    <color name="md_theme_primary">#A9C7FF</color>
+    <color name="md_theme_on_primary">#002E68</color>
+    <color name="md_theme_primary_container">#004494</color>
+    <color name="md_theme_on_primary_container">#D7E3FF</color>
+    <color name="md_theme_secondary">#B7C6E0</color>
+    <color name="md_theme_on_secondary">#212F44</color>
+    <color name="md_theme_secondary_container">#33405A</color>
+    <color name="md_theme_on_secondary_container">#DCE3F2</color>
+    <color name="md_theme_tertiary">#E4C54B</color>
+    <color name="md_theme_on_tertiary">#3A2F00</color>
+    <color name="md_theme_tertiary_container">#544400</color>
+    <color name="md_theme_on_tertiary_container">#FFE08A</color>
+    <color name="md_theme_surface">#0F1418</color>
+    <color name="md_theme_on_surface">#E2E6EB</color>
+    <color name="md_theme_surface_variant">#414852</color>
+    <color name="md_theme_on_surface_variant">#C1C7D0</color>
+    <color name="md_theme_surface_container">#1D2328</color>
+    <color name="md_theme_surface_container_low">#171C21</color>
+    <color name="md_theme_background">#0F1418</color>
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_on_error">#690005</color>
+    <color name="md_theme_error_container">#93000A</color>
+    <color name="md_theme_on_error_container">#FFDAD6</color>
+    <color name="md_theme_outline">#8B929C</color>
+    <color name="md_theme_outline_variant">#414852</color>
+    <color name="md_theme_inverse_surface">#E2E6EB</color>
+    <color name="md_theme_inverse_on_surface">#283039</color>
+
+    <!-- The badge, bookmark and private-contact colours that used to live here now live in
+         ui/theme/Color.kt as HrSemanticColors, which carries a light and a dark value for each and
+         is reachable from any composable through LocalHrColors. -->
+</resources>

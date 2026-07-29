@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Light-mode colour values for the Activity-level theme and any View still on screen during the
+  Compose migration. These mirror ui/theme/Color.kt exactly — Compose is the source of truth, and
+  these exist so the window background and the surviving Views match it.
+
+  Every colour here now has a values-night counterpart. The badge and bookmark colours previously
+  did not, which is why they never adapted to dark mode.
+-->
 <resources>
-    <color name="md_theme_primary">#1565C0</color>
+    <color name="md_theme_primary">#1257A6</color>
     <color name="md_theme_on_primary">#FFFFFF</color>
-    <color name="md_theme_primary_container">#D6E4FF</color>
-    <color name="md_theme_on_primary_container">#001947</color>
-    <color name="md_theme_secondary">#565E71</color>
+    <color name="md_theme_primary_container">#D8E2FF</color>
+    <color name="md_theme_on_primary_container">#001A41</color>
+    <color name="md_theme_secondary">#4A5C78</color>
     <color name="md_theme_on_secondary">#FFFFFF</color>
-    <color name="md_theme_secondary_container">#DAE2F9</color>
-    <color name="md_theme_on_secondary_container">#131C2B</color>
-    <color name="md_theme_surface">#F8F9FF</color>
-    <color name="md_theme_on_surface">#191C20</color>
-    <color name="md_theme_surface_variant">#E1E2EC</color>
-    <color name="md_theme_on_surface_variant">#44474F</color>
-    <color name="md_theme_background">#F8F9FF</color>
-    <color name="md_theme_error">#BA1A1A</color>
-    <color name="md_theme_outline">#74777F</color>
+    <color name="md_theme_secondary_container">#DCE3F2</color>
+    <color name="md_theme_on_secondary_container">#101C2B</color>
+    <color name="md_theme_tertiary">#6F5B00</color>
+    <color name="md_theme_on_tertiary">#FFFFFF</color>
+    <color name="md_theme_tertiary_container">#FFE08A</color>
+    <color name="md_theme_on_tertiary_container">#231B00</color>
+    <color name="md_theme_surface">#F7F9FC</color>
+    <color name="md_theme_on_surface">#131A22</color>
+    <color name="md_theme_surface_variant">#DFE3EC</color>
+    <color name="md_theme_on_surface_variant">#434A54</color>
+    <color name="md_theme_surface_container">#EFF2F8</color>
+    <color name="md_theme_surface_container_low">#FFFFFF</color>
+    <color name="md_theme_background">#F7F9FC</color>
+    <color name="md_theme_error">#B3261E</color>
+    <color name="md_theme_on_error">#FFFFFF</color>
+    <color name="md_theme_error_container">#F9DEDC</color>
+    <color name="md_theme_on_error_container">#410E0B</color>
+    <color name="md_theme_outline">#737A85</color>
+    <color name="md_theme_outline_variant">#C3C8D2</color>
+    <color name="md_theme_inverse_surface">#283039</color>
+    <color name="md_theme_inverse_on_surface">#EFF2F8</color>
 
-    <color name="verified_badge_background">#DCEDC8</color>
-    <color name="verified_badge_text">#1B5E20</color>
-    <color name="unverified_badge_background">#ECEFF1</color>
-    <color name="unverified_badge_text">#546E7A</color>
-
-    <color name="bookmark_active">#F9A825</color>
-    <color name="bookmark_inactive">#90A4AE</color>
-    <color name="private_badge_background">#FFE0B2</color>
-    <color name="private_badge_text">#E65100</color>
+    <!-- The badge, bookmark and private-contact colours that used to live here now live in
+         ui/theme/Color.kt as HrSemanticColors, which carries a light and a dark value for each and
+         is reachable from any composable through LocalHrColors. -->
 </resources>

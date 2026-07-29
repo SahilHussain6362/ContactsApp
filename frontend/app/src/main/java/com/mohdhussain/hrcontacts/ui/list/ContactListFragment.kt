@@ -2,196 +2,171 @@ package com.mohdhussain.hrcontacts.ui.list
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.mohdhussain.hrcontacts.R
-import com.mohdhussain.hrcontacts.data.repository.AuthRepository
-import com.mohdhussain.hrcontacts.databinding.FragmentContactListBinding
+import com.mohdhussain.hrcontacts.ui.add.AddContactBottomSheetFragment
+import com.mohdhussain.hrcontacts.ui.theme.HrContactsTheme
 import kotlinx.coroutines.launch
 
+/**
+ * Host for [ContactListScreen].
+ *
+ * Keeps everything that is not drawing: the ViewModel, navigation, the bulk-email intent, and the
+ * filter sheet — which is still shown through `childFragmentManager` so it goes on sharing this
+ * fragment's [ContactListViewModel] exactly as it did before.
+ *
+ * Also hosts the Bookmarks / Your Contacts folders pushed from [com.mohdhussain.hrcontacts.ui.hub.ContactsHubFragment]
+ * — same class, a different nav_graph destination id (`contactsFilteredFragment`) and a "scope"
+ * argument, which is why navigation below goes to destination ids directly rather than through a
+ * named action: an action declared on one of those two graph nodes would not exist on the other.
+ */
 class ContactListFragment : Fragment() {
 
-    private var _binding: FragmentContactListBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var viewModel: ContactListViewModel
-    private lateinit var adapter: ContactListAdapter
-    private var actionMode: ActionMode? = null
+
+    private val scope: ContactListScope by lazy {
+        arguments?.getString("scope")?.let { runCatching { ContactListScope.valueOf(it) }.getOrNull() }
+            ?: ContactListScope.ALL
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentContactListBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(
             this,
-            ContactListViewModelFactory(requireContext())
+            ContactListViewModelFactory(requireContext(), scope)
         )[ContactListViewModel::class.java]
 
-        setupAdapter()
-        setupRecyclerView()
-        setupSearchView()
-        setupFilterChips()
-        setupFilterButton()
-        setupFab()
-        observeViewModel()
-    }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                // Owned here rather than in the ViewModel: the query the ViewModel holds is the
+                // debounced one, and it exposes no scope back, so these two are the host's to keep.
+                // rememberSaveable is what makes a rotation no longer clear the search box.
+                var query by rememberSaveable { mutableStateOf("") }
+                var scopeIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    private fun setupFilterButton() {
-        binding.btnFilter.setOnClickListener {
-            // childFragmentManager keeps this fragment as the sheet's parent, which is
-            // how the sheet reaches the shared ContactListViewModel.
-            if (childFragmentManager.findFragmentByTag(FilterBottomSheetFragment.TAG) == null) {
-                FilterBottomSheetFragment().show(
-                    childFragmentManager,
-                    FilterBottomSheetFragment.TAG
-                )
-            }
-        }
-    }
+                val items by viewModel.listItems.observeAsState(initial = emptyList())
+                val filter by viewModel.filter.observeAsState(initial = ContactFilter())
+                val selectionMode by viewModel.isSelectionMode.observeAsState(initial = false)
+                val selectedIds by viewModel.selectedIds.observeAsState(initial = emptySet())
 
-    private fun setupAdapter() {
-        adapter = ContactListAdapter(
-            onContactClick = { contactId ->
-                findNavController().navigate(
-                    R.id.action_list_to_detail,
-                    bundleOf("contactId" to contactId)
-                )
-            },
-            onContactLongClick = { contactId ->
-                if (viewModel.isSelectionMode.value == true) {
-                    viewModel.toggleSelection(contactId)
-                } else {
-                    viewModel.enterSelectionMode(contactId)
+                HrContactsTheme {
+                    ContactListScreen(
+                        items = items,
+                        query = query,
+                        onQueryChange = { new ->
+                            query = new
+                            viewModel.onSearchQueryChanged(new)
+                        },
+                        scopeIndex = scopeIndex,
+                        onScopeChange = { index ->
+                            scopeIndex = index
+                            viewModel.setSearchScope(SCOPES[index])
+                        },
+                        activeFilterCount = filter.activeCount,
+                        onFilterClick = ::showFilterSheet,
+                        selectionMode = selectionMode,
+                        selectedCount = selectedIds.size,
+                        onContactClick = { contactId ->
+                            findNavController().navigate(
+                                R.id.contactDetailFragment,
+                                bundleOf("contactId" to contactId)
+                            )
+                        },
+                        onContactLongClick = { contactId ->
+                            if (viewModel.isSelectionMode.value == true) {
+                                viewModel.toggleSelection(contactId)
+                            } else {
+                                viewModel.enterSelectionMode(contactId)
+                            }
+                        },
+                        onBookmarkClick = viewModel::toggleBookmark,
+                        onHeaderSelectionClick = viewModel::selectAllFromCompany,
+                        onExitSelection = viewModel::clearSelection,
+                        onSelectAll = viewModel::selectAll,
+                        onSendEmail = ::sendBulkEmail,
+                        onDeleteSelected = viewModel::deleteSelected,
+                        onAddContact = ::showAddContactSheet,
+                        onClearFilters = viewModel::clearFilter,
+                        title = stringResource(
+                            when (scope) {
+                                ContactListScope.ALL -> R.string.nav_home
+                                ContactListScope.MINE -> R.string.contacts_hub_your_contacts
+                                ContactListScope.BOOKMARKED -> R.string.contacts_hub_bookmarks
+                            }
+                        ),
+                        onNavigateBack = if (scope == ContactListScope.ALL) {
+                            null
+                        } else {
+                            { findNavController().popBackStack() }
+                        },
+                        emptyIcon = painterResource(
+                            when (scope) {
+                                ContactListScope.ALL -> R.drawable.ic_contacts
+                                ContactListScope.MINE -> R.drawable.ic_contacts
+                                ContactListScope.BOOKMARKED -> R.drawable.ic_bookmark_border
+                            }
+                        ),
+                        emptyTitle = stringResource(
+                            when (scope) {
+                                ContactListScope.ALL -> R.string.empty_contacts_title
+                                ContactListScope.MINE -> R.string.empty_added_title
+                                ContactListScope.BOOKMARKED -> R.string.empty_bookmarks_title
+                            }
+                        ),
+                        emptyBody = stringResource(
+                            when (scope) {
+                                ContactListScope.ALL -> R.string.empty_contacts_body
+                                ContactListScope.MINE -> R.string.empty_added_body
+                                ContactListScope.BOOKMARKED -> R.string.empty_bookmarks_body
+                            }
+                        ),
+                        emptyActionText = if (scope == ContactListScope.ALL) {
+                            stringResource(R.string.empty_contacts_action)
+                        } else {
+                            null
+                        }
+                    )
                 }
-            },
-            onHeaderCheckboxClick = { company ->
-                viewModel.selectAllFromCompany(company)
-            },
-            onBookmarkClick = { contactId ->
-                viewModel.toggleBookmark(contactId)
             }
-        )
-    }
-
-    private fun setupRecyclerView() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = adapter
-    }
-
-    private fun setupSearchView() {
-        binding.searchEditText.doAfterTextChanged { text ->
-            viewModel.onSearchQueryChanged(text?.toString() ?: "")
         }
     }
 
-    private fun setupFilterChips() {
-        binding.filterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            val scope = when {
-                R.id.chipByName in checkedIds -> SearchScope.NAME
-                R.id.chipByCompany in checkedIds -> SearchScope.COMPANY
-                else -> SearchScope.ALL
-            }
-            viewModel.setSearchScope(scope)
-        }
-    }
-
-    private fun setupFab() {
-        binding.fab.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_list_to_add,
-                bundleOf("contactId" to -1L)
+    private fun showFilterSheet() {
+        // childFragmentManager keeps this fragment as the sheet's parent, which is how the sheet
+        // reaches the shared ContactListViewModel.
+        if (childFragmentManager.findFragmentByTag(FilterBottomSheetFragment.TAG) == null) {
+            FilterBottomSheetFragment().show(
+                childFragmentManager,
+                FilterBottomSheetFragment.TAG
             )
         }
     }
 
-    private fun observeViewModel() {
-        viewModel.listItems.observe(viewLifecycleOwner) { items ->
-            adapter.submitList(items)
-            val hasContacts = items.any { it is ListItem.ContactRow }
-            binding.recyclerView.isVisible = hasContacts
-            binding.emptyView.isVisible = !hasContacts
-            binding.emptyView.setText(
-                if (viewModel.hasActiveCriteria()) R.string.no_results else R.string.no_contacts
+    private fun showAddContactSheet() {
+        if (childFragmentManager.findFragmentByTag(AddContactBottomSheetFragment.TAG) == null) {
+            AddContactBottomSheetFragment().show(
+                childFragmentManager,
+                AddContactBottomSheetFragment.TAG
             )
-        }
-
-        viewModel.filter.observe(viewLifecycleOwner) { filter ->
-            binding.btnFilter.text = if (filter.isActive) {
-                getString(R.string.filter_with_count, filter.activeCount)
-            } else {
-                getString(R.string.filter)
-            }
-        }
-
-        viewModel.isSelectionMode.observe(viewLifecycleOwner) { inSelectionMode ->
-            adapter.isSelectionMode = inSelectionMode
-            if (inSelectionMode) {
-                if (actionMode == null) {
-                    actionMode = (requireActivity() as AppCompatActivity)
-                        .startSupportActionMode(actionModeCallback)
-                }
-                binding.fab.hide()
-            } else {
-                actionMode?.finish()
-                actionMode = null
-                binding.fab.show()
-            }
-            adapter.notifyDataSetChanged()
-        }
-
-        viewModel.selectedIds.observe(viewLifecycleOwner) { selected ->
-            val count = selected.size
-            actionMode?.title = getString(R.string.selected_count, count)
-        }
-    }
-
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.menu_action_mode, menu)
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return when (item.itemId) {
-                R.id.action_send_email -> {
-                    sendBulkEmail()
-                    true
-                }
-                R.id.action_select_all -> {
-                    viewModel.selectAll()
-                    true
-                }
-                R.id.action_delete -> {
-                    confirmAndDelete()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            viewModel.clearSelection()
-            actionMode = null
         }
     }
 
@@ -211,23 +186,13 @@ class ContactListFragment : Fragment() {
         }
     }
 
-    private fun confirmAndDelete() {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Delete selected contacts?")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteSelected()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch { viewModel.syncNow() }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private companion object {
+        /** Index order must match the chip order in [ContactListScreen]. */
+        private val SCOPES = listOf(SearchScope.ALL, SearchScope.NAME, SearchScope.COMPANY)
     }
 }

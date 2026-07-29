@@ -10,6 +10,9 @@ import kotlinx.coroutines.launch
 
 enum class SearchScope { ALL, NAME, COMPANY }
 
+/** Which set of contacts a [ContactListViewModel] draws from. */
+enum class ContactListScope { ALL, MINE, BOOKMARKED }
+
 /**
  * Criteria picked in the filter bottom sheet. Each field narrows the list only when set —
  * a blank [company] or a `false` toggle means "don't narrow on this" — so the default
@@ -32,13 +35,23 @@ data class ContactFilter(
     val isActive: Boolean get() = activeCount > 0
 }
 
-class ContactListViewModel(private val repository: ContactRepository) : ViewModel() {
+class ContactListViewModel(
+    private val repository: ContactRepository,
+    val scope: ContactListScope = ContactListScope.ALL
+) : ViewModel() {
 
     init {
         viewModelScope.launch { repository.syncNow() }
     }
 
-    private val allContacts: LiveData<List<HrContact>> = repository.allContacts
+    // "allContacts" here means "everything this scope shows", not literally every contact — the
+    // rest of the ViewModel (search, filter, grouping, selection) is unaware of the scope and works
+    // the same regardless of which of these three it was handed.
+    private val allContacts: LiveData<List<HrContact>> = when (scope) {
+        ContactListScope.ALL -> repository.allContacts
+        ContactListScope.MINE -> repository.myContacts()
+        ContactListScope.BOOKMARKED -> repository.bookmarkedContacts
+    }
 
     private val _searchQuery = MutableLiveData("")
     private val _searchScope = MutableLiveData(SearchScope.ALL)
@@ -219,10 +232,13 @@ class ContactListViewModel(private val repository: ContactRepository) : ViewMode
     }
 }
 
-class ContactListViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class ContactListViewModelFactory(
+    private val context: Context,
+    private val scope: ContactListScope = ContactListScope.ALL
+) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val repo = ContactRepository.getInstance(context)
-        return ContactListViewModel(repo) as T
+        return ContactListViewModel(repo, scope) as T
     }
 }

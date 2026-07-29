@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Activity-level theme. Compose owns the look of the screens; this exists for the window itself
+  (background, system bars) and for the Views that outlive the migration — the bottom sheet
+  containers and dialogs.
+
+  There is no values-night copy of this file on purpose. Every value below resolves through
+  @color/md_theme_*, which now has a values-night set, so one declaration covers both modes and the
+  two can no longer drift apart. System bar icon colours are set at runtime by enableEdgeToEdge() in
+  MainActivity and by HrContactsTheme.
+-->
 <resources>
     <style name="Theme.HrContacts" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
@@ -7,14 +17,49 @@
         <item name="colorOnPrimaryContainer">@color/md_theme_on_primary_container</item>
         <item name="colorSecondary">@color/md_theme_secondary</item>
         <item name="colorOnSecondary">@color/md_theme_on_secondary</item>
+        <!-- The pair the old night theme omitted, which sent every tonal button to the Material
+             baseline lavender in dark mode. -->
         <item name="colorSecondaryContainer">@color/md_theme_secondary_container</item>
         <item name="colorOnSecondaryContainer">@color/md_theme_on_secondary_container</item>
-        <item name="android:colorBackground">@color/md_theme_background</item>
-        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorTertiary">@color/md_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_on_tertiary_container</item>
         <item name="colorSurface">@color/md_theme_surface</item>
         <item name="colorOnSurface">@color/md_theme_on_surface</item>
         <item name="colorSurfaceVariant">@color/md_theme_surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/md_theme_on_surface_variant</item>
+        <item name="colorSurfaceContainer">@color/md_theme_surface_container</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_surface_container_low</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_on_error</item>
+        <item name="colorErrorContainer">@color/md_theme_error_container</item>
+        <item name="colorOnErrorContainer">@color/md_theme_on_error_container</item>
         <item name="colorOutline">@color/md_theme_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_outline_variant</item>
+        <item name="colorSurfaceInverse">@color/md_theme_inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_inverse_on_surface</item>
+        <item name="android:colorBackground">@color/md_theme_background</item>
+
+        <!-- Compose draws the sheet contents; this keeps the container behind them matching. -->
+        <item name="bottomSheetDialogTheme">@style/Theme.HrContacts.BottomSheetDialog</item>
+    </style>
+
+    <style name="Theme.HrContacts.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.HrContacts.BottomSheet</item>
+    </style>
+
+    <style name="Widget.HrContacts.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/md_theme_surface_container_low</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.HrContacts.BottomSheet</item>
+    </style>
+
+    <!-- 28dp top corners, matching HrShapes.extraLarge in ui/theme/Shape.kt. -->
+    <style name="ShapeAppearance.HrContacts.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
     </style>
 </resources>

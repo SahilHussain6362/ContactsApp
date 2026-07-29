@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.mohdhussain.hrcontacts.R
-import com.mohdhussain.hrcontacts.databinding.SheetEditNameBinding
+import com.mohdhussain.hrcontacts.ui.theme.HrContactsTheme
 
 /**
  * Renames the signed-in user. Shares [ProfileViewModel] with the host fragment — hence the
@@ -16,54 +16,35 @@ import com.mohdhussain.hrcontacts.databinding.SheetEditNameBinding
  */
 class EditNameBottomSheetFragment : BottomSheetDialogFragment() {
 
-    private var _binding: SheetEditNameBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var viewModel: ProfileViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = SheetEditNameBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(
             requireParentFragment(),
             ProfileViewModelFactory(requireContext())
         )[ProfileViewModel::class.java]
 
+        // Seeded once, outside the composition: EditNameSheetContent then owns the field, which is
+        // what keeps an in-progress edit through a rotation.
         val user = viewModel.user.value
-        binding.tvEmailReadOnly.text = user?.email.orEmpty()
 
-        // Prefill only on first open — on rotation the field restores itself, and overwriting it
-        // would discard an in-progress edit.
-        if (savedInstanceState == null) {
-            binding.etName.setText(user?.name.orEmpty())
-            binding.etName.setSelection(binding.etName.text?.length ?: 0)
+        return ComposeView(requireContext()).apply {
+            setContent {
+                HrContactsTheme {
+                    EditNameSheetContent(
+                        initialName = user?.name.orEmpty(),
+                        email = user?.email.orEmpty(),
+                        onSave = { name ->
+                            viewModel.updateName(name)
+                            dismiss()
+                        }
+                    )
+                }
+            }
         }
-
-        binding.btnSaveName.setOnClickListener { save() }
-    }
-
-    private fun save() {
-        val name = binding.etName.text?.toString()?.trim().orEmpty()
-        if (name.isEmpty()) {
-            binding.nameLayout.error = getString(R.string.profile_name_required)
-            return
-        }
-        binding.nameLayout.error = null
-        viewModel.updateName(name)
-        dismiss()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

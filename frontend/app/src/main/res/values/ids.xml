@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The centre "Add" slot in the bottom nav is an action, not a navigation destination — this id
+         is a sentinel HrNavigationBar can hand back so MainActivity knows to open the add-contact
+         sheet instead of navigating. -->
+    <item name="nav_action_add_contact" type="id" />
+</resources>

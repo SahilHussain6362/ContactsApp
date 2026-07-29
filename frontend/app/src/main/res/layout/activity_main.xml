@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  A vertical LinearLayout rather than a Coordinator/overlay: the nav bar takes its own row, so
-  each page's own content (including the contact list's FAB) lays out above it without needing
-  per-screen bottom insets.
+  A vertical LinearLayout rather than a Coordinator/overlay: the tab bar takes its own row, so each
+  page's own content (including the contact list's FAB) lays out above it rather than under it.
+
+  What that costs is that a top-level page does not reach the bottom of the window, so it must not
+  add navigation-bar insets of its own — the tab bar below it already covers that area, and pads
+  itself for the system bar. ContactListScreen and ProfileScreen therefore drop the vertical part of
+  their Scaffold window insets; the pages that fill the whole window keep theirs.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,12 +23,12 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <!-- Hosts HrNavigationBar. Item identity is still the nav_graph destination id, so the tab
+         switching logic in MainActivity is unchanged. -->
+    <androidx.compose.ui.platform.ComposeView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_bottom_nav" />
+        android:visibility="gone" />
 
 </LinearLayout>
