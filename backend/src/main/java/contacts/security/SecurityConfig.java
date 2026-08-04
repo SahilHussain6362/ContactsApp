@@ -32,7 +32,7 @@ public class SecurityConfig {
                         // Only the login exchange is public. This deliberately does NOT use
                         // /api/v1/auth/** — the profile endpoints live under that prefix and
                         // must stay authenticated, since they read and write the caller's own record.
-                        .requestMatchers("/api/v1/auth/google").permitAll()
+                        .requestMatchers("/api/v1/auth/google", "/api/v1/health").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) ->
                         res.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized")))
