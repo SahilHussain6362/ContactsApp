@@ -4,6 +4,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.Collections;
 
 @Service
 public class GoogleTokenService {
+
+    private static final Logger log = LoggerFactory.getLogger(GoogleTokenService.class);
 
     private final GoogleIdTokenVerifier verifier;
 
@@ -29,13 +33,16 @@ public class GoogleTokenService {
         try {
             idToken = verifier.verify(idTokenString);
         } catch (GeneralSecurityException | IOException | IllegalArgumentException e) {
+            log.warn("Google ID token verification errored: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unable to verify Google token", e);
         }
         if (idToken == null) {
+            log.warn("Rejected invalid Google ID token");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google token");
         }
         GoogleIdToken.Payload payload = idToken.getPayload();
         if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
+            log.warn("Rejected Google login for unverified email: {}", payload.getEmail());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google email is not verified");
         }
         return new GooglePayload(payload.getEmail(), (String) payload.get("name"));

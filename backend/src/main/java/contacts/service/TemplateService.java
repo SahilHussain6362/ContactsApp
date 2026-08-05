@@ -6,6 +6,8 @@ import contacts.model.User;
 import contacts.model.WhatsappTemplate;
 import contacts.repository.UserRepository;
 import contacts.security.CurrentUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,6 +33,8 @@ public class TemplateService {
      */
     public static final int MAX_PER_TYPE = 3;
 
+    private static final Logger log = LoggerFactory.getLogger(TemplateService.class);
+
     private final UserRepository userRepository;
     private final CurrentUser currentUser;
 
@@ -43,7 +47,9 @@ public class TemplateService {
         User user = currentUser.require();
         List<EmailTemplate> templates = user.getEmailTemplates();
         requireRoom(templates.size(), "email");
-        templates.add(new EmailTemplate(UUID.randomUUID().toString(), heading.trim(), body.trim()));
+        String id = UUID.randomUUID().toString();
+        templates.add(new EmailTemplate(id, heading.trim(), body.trim()));
+        log.info("User {} added email template {}", user.getId(), id);
         return save(user);
     }
 
@@ -52,6 +58,7 @@ public class TemplateService {
         EmailTemplate template = find(user.getEmailTemplates(), t -> id.equals(t.getId()), id);
         template.setHeading(heading.trim());
         template.setBody(body.trim());
+        log.info("User {} updated email template {}", user.getId(), id);
         return save(user);
     }
 
@@ -60,6 +67,7 @@ public class TemplateService {
         if (!user.getEmailTemplates().removeIf(t -> id.equals(t.getId()))) {
             throw notFound(id);
         }
+        log.info("User {} deleted email template {}", user.getId(), id);
         return save(user);
     }
 
@@ -67,7 +75,9 @@ public class TemplateService {
         User user = currentUser.require();
         List<WhatsappTemplate> templates = user.getWhatsappTemplates();
         requireRoom(templates.size(), "WhatsApp");
-        templates.add(new WhatsappTemplate(UUID.randomUUID().toString(), message.trim()));
+        String id = UUID.randomUUID().toString();
+        templates.add(new WhatsappTemplate(id, message.trim()));
+        log.info("User {} added WhatsApp template {}", user.getId(), id);
         return save(user);
     }
 
@@ -75,6 +85,7 @@ public class TemplateService {
         User user = currentUser.require();
         WhatsappTemplate template = find(user.getWhatsappTemplates(), t -> id.equals(t.getId()), id);
         template.setMessage(message.trim());
+        log.info("User {} updated WhatsApp template {}", user.getId(), id);
         return save(user);
     }
 
@@ -83,6 +94,7 @@ public class TemplateService {
         if (!user.getWhatsappTemplates().removeIf(t -> id.equals(t.getId()))) {
             throw notFound(id);
         }
+        log.info("User {} deleted WhatsApp template {}", user.getId(), id);
         return save(user);
     }
 
@@ -93,6 +105,7 @@ public class TemplateService {
      */
     private void requireRoom(int currentCount, String typeLabel) {
         if (currentCount >= MAX_PER_TYPE) {
+            log.warn("User {} hit the {}-template limit ({})", currentUser.requireId(), typeLabel, MAX_PER_TYPE);
             throw new ResponseStatusException(HttpStatus.CONFLICT, "You can store at most "
                     + MAX_PER_TYPE + " " + typeLabel + " templates. Delete one to add another.");
         }

@@ -10,6 +10,8 @@ import contacts.model.User;
 import contacts.repository.ContactRepository;
 import contacts.repository.UserRepository;
 import contacts.security.CurrentUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,6 +21,8 @@ import java.util.*;
 
 @Service
 public class ContactService {
+
+    private static final Logger log = LoggerFactory.getLogger(ContactService.class);
 
     private final ContactRepository repository;
     private final UserRepository userRepository;
@@ -56,8 +60,12 @@ public class ContactService {
      */
     private Contact requireVisible(String id) {
         Contact contact = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found: " + id));
+                .orElseThrow(() -> {
+                    log.warn("Requested contact not found: {}", id);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found: " + id);
+                });
         if (!isVisibleTo(contact, currentUser.requireId())) {
+            log.warn("User {} attempted to access private contact {} they do not own", currentUser.requireId(), id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found: " + id);
         }
         return contact;
@@ -71,6 +79,7 @@ public class ContactService {
         User user = currentUser.require();
         user.getBookmarkedContactIds().add(contactId);
         user.setUpdatedAt(Instant.now());
+        log.info("User {} bookmarked contact {}", user.getId(), contactId);
         return UserDto.from(userRepository.save(user));
     }
 
@@ -82,6 +91,7 @@ public class ContactService {
         User user = currentUser.require();
         user.getBookmarkedContactIds().remove(contactId);
         user.setUpdatedAt(Instant.now());
+        log.info("User {} removed bookmark on contact {}", user.getId(), contactId);
         return UserDto.from(userRepository.save(user));
     }
 
@@ -131,7 +141,9 @@ public class ContactService {
             }
 
             existing.setUpdatedAt(Instant.now());
-            return repository.save(existing);
+            Contact merged = repository.save(existing);
+            log.info("Merged incoming contact into existing contact {} for user {}", merged.getId(), callerId);
+            return merged;
         }
 
         Instant now = Instant.now();
@@ -150,7 +162,9 @@ public class ContactService {
         contact.setCreatedAt(now);
         contact.setUpdatedAt(now);
         contact.setDeleted(false);
-        return repository.save(contact);
+        Contact saved = repository.save(contact);
+        log.info("Created contact {} for user {}", saved.getId(), callerId);
+        return saved;
     }
 
     // Returns the first existing non-deleted contact that shares any email, mobile,
@@ -196,7 +210,9 @@ public class ContactService {
             contact.setPrivate(req.isPrivate());
         }
         contact.setUpdatedAt(Instant.now());
-        return repository.save(contact);
+        Contact saved = repository.save(contact);
+        log.info("Updated contact {} by user {}", id, currentUser.requireId());
+        return saved;
     }
 
     public void softDelete(String id) {
@@ -204,6 +220,7 @@ public class ContactService {
         contact.setDeleted(true);
         contact.setUpdatedAt(Instant.now());
         repository.save(contact);
+        log.info("Soft-deleted contact {} by user {}", id, currentUser.requireId());
     }
 
     public BatchSyncResponse batchSync(BatchSyncRequest req) {
@@ -213,6 +230,7 @@ public class ContactService {
         String callerId = currentUser.requireId();
 
         if (req.getChanges() == null) {
+            log.info("Batch sync for user {}: no changes", callerId);
             return new BatchSyncResponse(serverTimestamp, upserted, deletedIds);
         }
 
@@ -273,6 +291,8 @@ public class ContactService {
             }
         }
 
+        log.info("Batch sync for user {}: {} changes -> {} upserted, {} deleted",
+                callerId, req.getChanges().size(), upserted.size(), deletedIds.size());
         return new BatchSyncResponse(serverTimestamp, upserted, deletedIds);
     }
 }

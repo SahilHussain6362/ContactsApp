@@ -5,12 +5,16 @@ import contacts.dto.UserDto;
 import contacts.model.AuthProvider;
 import contacts.model.User;
 import contacts.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -28,6 +32,7 @@ public class AuthService {
         GoogleTokenService.GooglePayload payload = googleTokenService.verify(idToken);
         User user = userRepository.findByEmail(payload.email())
                 .orElseGet(() -> createUser(payload.email(), payload.name()));
+        log.info("Google login succeeded for user {} ({})", user.getId(), user.getEmail());
         return buildAuthResponse(user);
     }
 
@@ -41,6 +46,7 @@ public class AuthService {
      * email and never writes the name back over an existing document.
      */
     public UserDto updateProfile(User user, String name) {
+        log.info("User {} updated profile name to '{}'", user.getId(), name.trim());
         user.setName(name.trim());
         user.setUpdatedAt(Instant.now());
         return UserDto.from(userRepository.save(user));
@@ -54,7 +60,9 @@ public class AuthService {
         user.setProvider(AuthProvider.GOOGLE);
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        log.info("New user registered via Google: {} ({})", saved.getId(), email);
+        return saved;
     }
 
     private AuthResponse buildAuthResponse(User user) {

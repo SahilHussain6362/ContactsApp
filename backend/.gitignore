@@ -40,3 +40,6 @@ build/
 
 ### Secrets ###
 src/main/resources/application.properties
+
+### Logs ###
+logs/
